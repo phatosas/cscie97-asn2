@@ -1,0 +1,18 @@
+# Include your project-specific ignores in this file
+# Read about how to use .gitignore: https://help.github.com/articles/ignoring-files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight*
+.Trashes
+Icon?
+ethumbs.db
+Thumbs.db
+.idea
+.idea/*
+.idea/
+*.iml
+assignment1.iml
+out/
+out
+out/*
