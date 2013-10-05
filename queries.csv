@@ -1,0 +1,7 @@
+# catgory list, text search, minimum rating, max price, language list, country code, device id, content type list
+
+# search for “Ferrari” in name or description
+, Ferrari, , , , , , 
+
+# search for all content with a minimum rating of 4 and a price of 0 or less (i.e. free)
+, , 4, 0, , , , 
