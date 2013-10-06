@@ -36,14 +36,6 @@ import java.util.List;
 public interface IProductAPI {
 
     /**
-     * Returns a reference to the single static instance of the ProductAPI.
-     *
-     * @return singleton instance of the ProductAPI
-     */
-    //public IProductAPI getInstance();
-
-
-    /**
      * Verifies that the <b>guid</b> access token passed is authenticated and authorized for carrying out
      * restricted actions on the ProductAPI (such as adding new Content items, etc.).
      * <b>Note that for this version of the ProductAPI, this method is mocked and will return true for
@@ -69,66 +61,6 @@ public interface IProductAPI {
      * @return          the found {@link cscie97.asn2.ecommerce.product.Device} with the matching ID
      */
     public Device getDeviceByID(String deviceID);
-
-    /**
-     * Public method for importing countries into the product catalog.  Every Content item has a list of Countries
-     * that the content item may be exported to.
-     * Checks for valid input file name.
-     * Throws ImportException on error accessing or processing the input Country file.
-     *
-     * @param filename                file with countries to load into the Product catalog
-     * @throws ImportException        thrown when encountering non-parse related exceptions in the import process
-     * @throws ParseException         thrown when encountering any issues parsing the input file related to the format of the file contents
-     */
-    //public void importCountries(String filename) throws ImportException, ParseException;
-
-    /**
-     * Public method for importing devices into the product catalog.  Every Content item has a list of supported
-     * Devices that the content item may be used on.
-     * Checks for valid input file name.
-     * Throws ImportException on error accessing or processing the input Device file.
-     *
-     * @param filename                file with supported devices to load into the Product catalog
-     * @throws ImportException        thrown when encountering non-parse related exceptions in the import process
-     * @throws ParseException         thrown when encountering any issues parsing the input file related to the format of the file contents
-     */
-    //public void importDevices(String filename) throws ImportException, ParseException;
-
-    /**
-     * Public method for importing Content items into the product catalog.  Every Content item has a list of supported
-     * Devices, and a list of Countries that the content item may be downloaded in.
-     * Checks for valid input file name.
-     * Throws ImportException on error accessing or processing the input Content file.
-     *
-     * @param filename                file with content items to load into the Product catalog
-     * @throws ImportException        thrown when encountering non-parse related exceptions in the import process
-     * @throws ParseException         thrown when encountering any issues parsing the input file related to the format of the file contents
-     */
-    //public void importContent(String filename) throws ImportException, ParseException;
-
-    /**
-     * <b>Restricted interface only for authenticated users.</b>  When passed an authorized <b>guid</b>, allows
-     * authenticated users the ability to add new {@link cscie97.asn2.ecommerce.product.Country} items into the
-     * Product catalog.  There is only one instance of each {@link cscie97.asn2.ecommerce.product.Country} object
-     * in the Product catalog at any time (follows the Flyweight pattern); attempts to add a pre-existing country
-     * will not do anything since the {@link cscie97.asn2.ecommerce.product.Country} already exists in the catalog.
-     *
-     * @param guid            a string token for a validated and authenticated user to allow restricted interface actions
-     * @param code            2-character country code
-     * @param name            the full name of the country to add
-     * @param exportStatus    can be one of: "open", "closed"
-     */
-    //public void addCountry(String guid, String code, String name, String exportStatus);
-
-    //public void addDevice(String guid, String id, String name, String manufacturer);
-
-    //public void addContent(String guid, Content item);
-
-
-
-
-
-
 
     /**
      * Public method for importing countries into the product catalog.  Every
@@ -169,19 +101,6 @@ public interface IProductAPI {
      * @param contentItems  list of {@link cscie97.asn2.ecommerce.product.Content} objects to add to the product catalog
      */
     public void importContent(String guid, List<Content> contentItems);
-
-
-    /*
-    public boolean validateCountry(Country country);
-
-    public boolean validateDevice(Device device);
-
-    public boolean validateContent(Content content);
-    */
-
-
-    //public ContentSearch parseSearchString(String searchString);
-
 
     /**
      * Search the Product catalog for all matching content items that correspond to the criteria in the supplied

@@ -41,11 +41,13 @@ public class ContentSearch {
 
     private Set<String> supportedLanguages = new HashSet<String>(){ };
 
-    private Country country;
+    private Country country = null;
 
-    private Device device;
+    private Device device = null;
 
     private Set<ContentType> contentTypes = new HashSet<ContentType>(){ };
+
+    public ContentSearch() { }
 
     public ContentSearch(Set<String> categories, String textSearch, int minimumRating, float maximumPrice,
                          Set<String> supportedLanguages, Country country, Device device, Set<ContentType> contentTypes
@@ -59,8 +61,6 @@ public class ContentSearch {
         this.device = device;
         this.contentTypes = contentTypes;
     }
-
-
 
     public Set<String> getCategories() {
         return categories;

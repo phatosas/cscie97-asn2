@@ -14,23 +14,74 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import java.util.*;
 
 /**
- * Loads new Triples from an input file into the KnowledgeGraph.  The input file should be a plain text file
- * consisting of lines in the following format:
- * <p><blockquote><code>[subject (Node)] [space] [Predicate] [space] [object (Node)][period]</code></blockquote></p>
- * Matching lines are imported into the KnowledgeGraph as Triples.
+ * Provides public static methods for supplying CSV files to load {@link cscie97.asn2.ecommerce.product.Country} items,
+ * {@link cscie97.asn2.ecommerce.product.Device} items, and
+ * {@link cscie97.asn2.ecommerce.product.Content} items (which may be one of
+ * {@link cscie97.asn2.ecommerce.product.Application}, {@link cscie97.asn2.ecommerce.product.Ringtone}, or
+ * {@link cscie97.asn2.ecommerce.product.Wallpaper} depending on the content type).  The input CSV files passed may
+ * contain a header line or comment lines that begin with a "#" symbol; those lines will be skipped for analysis.
+ *
+ * For importing {@link cscie97.asn2.ecommerce.product.Country} items, the input file must be in the following
+ * column format:
+ * <ol>
+ *     <li>2-character country code</li>
+ *     <li>country name</li>
+ *     <li>country export status (open or closed)</li>
+ * </ol>
+ * For example, here is a sample of what a valid country CSV input file might look like (country names that have
+ * commas in them may be escaped by putting a backslash in front of the comma):
+ * <pre>
+ * #country_id, country_name, country_export_status
+ * AF,AFGHANISTAN,open
+ * AX,ALAND ISLANDS,open
+ * AL,ALBANIA,open
+ * BO,BOLIVIA\, PLURINATIONAL STATE OF,open
+ * BQ,BONAIRE\, SINT EUSTATIUS AND SABA,open
+ *  ...
+ * </pre>
+ *
+ * For importing {@link cscie97.asn2.ecommerce.product.Device} items, the input file must be in the following
+ * column format:
+ * <ol>
+ *     <li>unique device ID</li>
+ *     <li>device name</li>
+ *     <li>device manufacturer name</li>
+ * </ol>
+ * For example, here is a sample of what a valid device CSV input file might look like (device names that have
+ * commas in them may be escaped by putting a backslash in front of the comma):
+ * <pre>
+ * # device_id, device_name, manufacturer
+ * iphone5, IPhone 5, Apple
+ * iphone6, IPhone 6, Apple
+ * lumina800, Lumina 800, Nokia
+ * lumina900, Lumina 900, Nokia
+ * ...
+ * </pre>
  *
  * @author David Killeffer <rayden7@gmail.com>
  * @version 1.0
  * @see IProductAPI
  * @See ProductAPI
+ * @see Content
+ * @see Device
+ * @see Application
+ * @see Ringtone
+ * @see Wallpaper
  */
 public class Importer {
 
-
+    /**
+     * Private method to parse a line from a CSV input file and return an array of strings.  Splits up the string
+     * based on the supplied separator, and ignores any backslash-escaped separator.
+     *
+     * @param line       the string to parse out and split into an array based on separator
+     * @param separator  the character to use for splitting out the line
+     * @return           an array of strings that were split by the separator
+     */
     private static String[] parseCSVLine(String line, String separator) {
-        // need to do a negative lookbehind to properly escape the backslash-preceeding-commas in input strings
-        // (help from http://stackoverflow.com/questions/820172/how-to-split-a-comma-separated-string-while-ignoring-escaped-commas)
-        //String[] parts = line.split("(?<!\\\\),");
+        // need to do a negative lookbehind to properly escape the backslash-preceeding characters that come
+        // immediately prior to the passed separator in input strings (help from:
+        // http://stackoverflow.com/questions/820172/how-to-split-a-comma-separated-string-while-ignoring-escaped-commas)
         String[] parts = line.split("(?<!\\\\)"+separator);
 
         // remove any remaining backslash characters from each of the parts if that backslash is immediately
@@ -81,7 +132,7 @@ public class Importer {
                                                 null);
                 }
             }
-            // add the countries to the Prodcut catalog
+            // add the countries to the Product catalog
             if (countries.size() > 0) {
                 productAPI.importCountries(guid, countries);
             }
@@ -157,7 +208,10 @@ public class Importer {
      * Public method for importing {@link cscie97.asn2.ecommerce.product.Content} items into the product catalog.
      * Note that any {@link cscie97.asn2.ecommerce.product.Device} or {@link cscie97.asn2.ecommerce.product.Country}
      * items referenced by the individual content items to add must already exist in the Product catalog first, or the
-     * import of that content item will not work.
+     * import of that content item will not work.  Depending on the content type of each item in the input file, will
+     * conditionally add the content items to the product catalog as either an
+     * {@link cscie97.asn2.ecommerce.product.Application},
+     * {@link cscie97.asn2.ecommerce.product.Ringtone}, or {@link cscie97.asn2.ecommerce.product.Wallpaper}.
      * Checks for valid input file name.
      * Throws ImportException on error accessing or processing the input Content File.
      *
@@ -194,9 +248,12 @@ public class Importer {
                     String contentImageURL = "";
                     int contentRating = 0;
                     int contentFilesizeBytes = 0;
+                    int contentPixelWidth = 0;
+                    int contentPixelHeight = 0;
+                    float contentPrice = 0;
+                    float contentDurationInSeconds = 0;
                     Set<String> contentCategories = new HashSet<String>(){};
                     Set<Device> contentDevices = new HashSet<Device>(){};
-                    float contentPrice = 0;
                     Set<Country> contentCountries = new HashSet<Country>(){};
                     Set<String> contentSupportedLanguages = new HashSet<String>(){};
                     ContentType contentType = null;
@@ -292,13 +349,45 @@ public class Importer {
                     if (cleanedColumns[11] != null && cleanedColumns[11].length() > 0) {
                         contentImageURL = cleanedColumns[11].trim();
                     }
-                    // OPTIONAL: if there is a 13th character, it is the application file size
+                    // OPTIONAL: if there is a 13th item in the array, it is the application file size
                     if (cleanedColumns.length >= 13 && cleanedColumns[12] != null && cleanedColumns[12].length() > 0) {
                         try {
                             contentFilesizeBytes = Integer.parseInt(cleanedColumns[12]);
                         }
                         catch (NumberFormatException nfe) {
                             throw new ParseException("Import Content line contains invalid data for the content application filesize ["+cleanedColumns[12].toString()+"].",
+                                                        line,
+                                                        lineNumber,
+                                                        filename,
+                                                        null);
+                        }
+                    }
+                    // OPTIONAL: if there is a 14th item in the array, it is the ringtone duration in seconds
+                    if (cleanedColumns.length >= 14 && cleanedColumns[13] != null && cleanedColumns[13].length() > 0) {
+                        try {
+                            contentDurationInSeconds = Float.parseFloat(cleanedColumns[13]);
+                        }
+                        catch (NumberFormatException nfe) {
+                            throw new ParseException("Import Content line contains invalid data for the content ringtone duration in seconds ["+cleanedColumns[13].toString()+"].",
+                                                        line,
+                                                        lineNumber,
+                                                        filename,
+                                                        null);
+                        }
+                    }
+                    // OPTIONAL: if there are 15th and 16th columns in the array, it is the wallpaper pixel width and pixel height
+                    if (cleanedColumns.length >= 16 &&
+                            cleanedColumns[14] != null &&
+                            cleanedColumns[15] != null &&
+                            cleanedColumns[14].length() > 0 &&
+                            cleanedColumns[15].length() > 0
+                    ) {
+                        try {
+                            contentPixelWidth = Integer.parseInt(cleanedColumns[14]);
+                            contentPixelHeight = Integer.parseInt(cleanedColumns[15]);
+                        }
+                        catch (NumberFormatException nfe) {
+                            throw new ParseException("Import Content line contains invalid data for the content wallpaper pixel width and height ["+cleanedColumns[14].toString()+","+cleanedColumns[15].toString()+"].",
                                                         line,
                                                         lineNumber,
                                                         filename,
@@ -328,7 +417,7 @@ public class Importer {
                             Content ringtone = new Ringtone(contentName, contentDescription, contentAuthorName,
                                                               contentRating, contentCategories, contentDevices,
                                                               contentPrice, contentCountries, contentSupportedLanguages,
-                                                              contentImageURL, contentType, contentFilesizeBytes);
+                                                              contentImageURL, contentType, contentDurationInSeconds);
                             contentItemsToAdd.add(ringtone);
                             break;
                         case WALLPAPER :
@@ -368,7 +457,7 @@ public class Importer {
 
 
 
-    public List<ContentSearch> importSearchQueryFile(String guid, String filename) throws ImportException, ParseException {
+    public List<ContentSearch> importSearchQueryFile(String filename) throws ImportException, ParseException {
         Set<String> categories = new HashSet<String>();
         Set<String> supportedLanguages = new HashSet<String>();
         Country country = new Country("","","");

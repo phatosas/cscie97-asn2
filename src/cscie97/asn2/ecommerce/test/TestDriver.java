@@ -32,8 +32,10 @@ public class TestDriver {
      * </ol>
      *
      * Calls several methods on the {@link cscie97.asn2.ecommerce.product.Importer} class to load the CSV datafile
-     * arguments, including {@link Importer#importCountryFile(String)}, {@link Importer#importDeviceFile(String)},
-     * {@link Importer#importContentFile(String)}, and {@link Importer#importSearchQueryFile(String)}
+     * arguments, including {@link Importer#importCountryFile(String guid, String filename)},
+     * {@link Importer#importDeviceFile(String guid, String filename)},
+     * {@link Importer#importContentFile(String guid, String filename)}, and
+     * {@link Importer#importSearchQueryFile(String filename)}
      *
      *
      *
