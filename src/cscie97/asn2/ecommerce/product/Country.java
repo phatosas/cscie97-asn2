@@ -97,6 +97,15 @@ public class Country {
     }
 
     /**
+     * Convenience method for debugging; returns a string representation of all the object's properties.
+     *
+     * @return  string containing all the object properties
+     */
+    public String toString() {
+        return "Country: [code:"+this.code+", name:"+this.name+", exportStatus:"+this.exportStatus+"]";
+    }
+
+    /**
      * Checks that all required fields are set, and that all country item property values are valid.
      *
      * @param country  the item to be validated for correct properties

@@ -1,5 +1,5 @@
 #content_type, content_id, content_name, content_description, author, rating, categories, export_countries,supported_devices,price, supported_languages, image_url, application_size
 
-application, a1, Angry Birds Seasons, Angry Birds Seasons, Rovio, 5, game|kids,US|CA|MX,iphone_5|iphone_6|lumina,1.5,en_us|en_ca|en_gb, http://web-assets.angrybirds.com/abcom/img/games/223/Icon_download_seasons_223x223.png,564
+application, a1, Angry Birds Seasons, Angry Birds Seasons, Rovio, 5, game|kids,US|CA|MX,iphone_5|iphone_6|lumina_800,1.5,en_us|en_ca|en_gb, http://web-assets.angrybirds.com/abcom/img/games/223/Icon_download_seasons_223x223.png,564
 
-ringtone, rt1, Ferrari 575M Maranello - 2002,This ringtone is a unique and exclusive recording of the 2002 Ferrari 575M Maranello being driven to its limits!,Nutbags,4,car|racing,US|CA|MX|AF|AL,lumina,0.0,en_us|en_ca|en_gb,http://p.d.ovi.com/p/g/store/1492679/_02_Ferrari_575M_Maranello-192x192.png
+ringtone, rt1, Ferrari 575M Maranello - 2002,This ringtone is a unique and exclusive recording of the 2002 Ferrari 575M Maranello being driven to its limits!,Nutbags,4,car|racing,US|CA|MX|AF|AL,lumina_800,0.0,en_us|en_ca|en_gb,http://p.d.ovi.com/p/g/store/1492679/_02_Ferrari_575M_Maranello-192x192.png

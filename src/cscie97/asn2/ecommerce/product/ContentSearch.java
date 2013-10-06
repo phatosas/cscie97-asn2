@@ -62,5 +62,68 @@ public class ContentSearch {
 
 
 
+    public Set<String> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<String> categories) {
+        this.categories = categories;
+    }
+
+    public String getTextSearch() {
+        return textSearch;
+    }
+
+    public void setTextSearch(String textSearch) {
+        this.textSearch = textSearch;
+    }
+
+    public int getMinimumRating() {
+        return minimumRating;
+    }
+
+    public void setMinimumRating(int minimumRating) {
+        this.minimumRating = minimumRating;
+    }
+
+    public float getMaximumPrice() {
+        return maximumPrice;
+    }
+
+    public void setMaximumPrice(float maximumPrice) {
+        this.maximumPrice = maximumPrice;
+    }
+
+    public Set<String> getSupportedLanguages() {
+        return supportedLanguages;
+    }
+
+    public void setSupportedLanguages(Set<String> supportedLanguages) {
+        this.supportedLanguages = supportedLanguages;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
+    public Device getDevice() {
+        return device;
+    }
+
+    public void setDevice(Device device) {
+        this.device = device;
+    }
+
+    public Set<ContentType> getContentTypes() {
+        return contentTypes;
+    }
+
+    public void setContentTypes(Set<ContentType> contentTypes) {
+        this.contentTypes = contentTypes;
+    }
 
 }

@@ -3,6 +3,7 @@ package cscie97.asn2.ecommerce.product;
 import cscie97.asn2.ecommerce.product.exception.ImportException;
 import cscie97.asn2.ecommerce.product.exception.ParseException;
 import cscie97.asn2.ecommerce.product.exception.QueryEngineException;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.List;
 import java.util.HashSet;
@@ -105,7 +106,13 @@ public class ProductAPI implements IProductAPI {
      * @param countries list of {@link cscie97.asn2.ecommerce.product.Country} objects to add to the product catalog
      */
     public void importCountries(String guid, List<Country> countries) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        if (validateAccessToken(guid)) {
+            for (Country country : countries) {
+                if (Country.validateCountry(country)) {
+                    this.countries.add(country);
+                }
+            }
+        }
     }
 
     /**
@@ -120,7 +127,13 @@ public class ProductAPI implements IProductAPI {
      * @param devices list of {@link cscie97.asn2.ecommerce.product.Device} objects to add to the product catalog
      */
     public void importDevices(String guid, List<Device> devices) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        if (validateAccessToken(guid)) {
+            for (Device device : devices) {
+                if (Device.validateDevice(device)) {
+                    this.devices.add(device);
+                }
+            }
+        }
     }
 
     /**
@@ -136,7 +149,19 @@ public class ProductAPI implements IProductAPI {
      * @param contentItems list of {@link cscie97.asn2.ecommerce.product.Content} objects to add to the product catalog
      */
     public void importContent(String guid, List<Content> contentItems) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        if (validateAccessToken(guid)) {
+            for (Content contentItem : contentItems) {
+                if (contentItem instanceof Application && Application.validateContent(contentItem)) {
+                    this.contentItems.add(contentItem);
+                }
+                else if (contentItem instanceof Wallpaper && Wallpaper.validateContent(contentItem)) {
+                    this.contentItems.add(contentItem);
+                }
+                else if (contentItem instanceof Ringtone && Ringtone.validateContent(contentItem)) {
+                    this.contentItems.add(contentItem);
+                }
+            }
+        }
     }
 
     /**
@@ -151,13 +176,19 @@ public class ProductAPI implements IProductAPI {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    /**
-     * Returns all {@link cscie97.asn2.ecommerce.product.Application} objects in the product catalog.
-     *
-     * @return all {@link cscie97.asn2.ecommerce.product.Application} objects in the product catalog
-     */
-    public List<Application> getAllApplications() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //********************************************************************************************************************//
 //********************************************************************************************************************//
@@ -183,6 +214,60 @@ https://github.com/nicholas22/jpropel-light
 //********************************************************************************************************************//
 //********************************************************************************************************************//
 
+
+
+
+
+
+
+
+
+    /**
+     * Given a 2-character country code, search for any country that matches in the product catalog.
+     * @param code  a 2-character country code
+     * @return      the found country with the matching code
+     */
+    public Country getCountryByCode(String code) {
+        for (Country country : this.countries) {
+            if (country.getCode().equalsIgnoreCase(code)) {
+                return country;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Given a device ID, search for any {@link cscie97.asn2.ecommerce.product.Device} that matches that code
+     * in the product catalog.
+     *
+     * @param deviceID  a unique device ID
+     * @return          the found {@link cscie97.asn2.ecommerce.product.Device} with the matching ID
+     */
+    public Device getDeviceByID(String deviceID) {
+        for (Device device : this.devices) {
+            if (device.getId().equalsIgnoreCase(deviceID)) {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns all {@link cscie97.asn2.ecommerce.product.Application} objects in the product catalog.
+     *
+     * @return all {@link cscie97.asn2.ecommerce.product.Application} objects in the product catalog
+     */
+    public List<Application> getAllApplications() {
+        List<Application> allApplications = new ArrayList<Application>();
+        for (Content contentItem : this.contentItems) {
+            if (contentItem instanceof Application) {
+                allApplications.add((Application)contentItem);
+            }
+            //if (contentItem.contentType.equals(ContentType.APPLICATION)) {
+            //    allApplications.add((Application)contentItem);
+            //}
+        }
+        return allApplications;
     }
 
     /**
@@ -191,7 +276,16 @@ https://github.com/nicholas22/jpropel-light
      * @return all {@link cscie97.asn2.ecommerce.product.Ringtone} objects in the product catalog
      */
     public List<Ringtone> getAllRingtones() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        List<Ringtone> allRingtones = new ArrayList<Ringtone>();
+        for (Content contentItem : this.contentItems) {
+            if (contentItem instanceof Ringtone) {
+                allRingtones.add((Ringtone)contentItem);
+            }
+            //if (contentItem.contentType.equals(ContentType.RINGTONE)) {
+            //    allRingtones.add((Ringtone)contentItem);
+            //}
+        }
+        return allRingtones;
     }
 
     /**
@@ -200,7 +294,16 @@ https://github.com/nicholas22/jpropel-light
      * @return all {@link cscie97.asn2.ecommerce.product.Wallpaper} objects in the product catalog
      */
     public List<Wallpaper> getAllWallpapers() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        List<Wallpaper> allWallpapers = new ArrayList<Wallpaper>();
+        for (Content contentItem : this.contentItems) {
+            if (contentItem instanceof Wallpaper) {
+                allWallpapers.add((Wallpaper)contentItem);
+            }
+            //if (contentItem.contentType.equals(ContentType.WALLPAPER)) {
+            //    allWallpapers.add((Wallpaper)contentItem);
+            //}
+        }
+        return allWallpapers;
     }
 
     /**
@@ -211,7 +314,9 @@ https://github.com/nicholas22/jpropel-light
      * @return all {@link cscie97.asn2.ecommerce.product.Content} objects in the product catalog regardless of type
      */
     public List<Content> getAllContent() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        List<Content> allContent = new ArrayList<Content>();
+        allContent.addAll(this.contentItems);
+        return allContent;
     }
 
     /**
@@ -220,7 +325,7 @@ https://github.com/nicholas22/jpropel-light
      * @return all {@link cscie97.asn2.ecommerce.product.Country} objects in the product catalog
      */
     public Set<Country> getCountries() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return this.countries;
     }
 
     /**
@@ -229,7 +334,7 @@ https://github.com/nicholas22/jpropel-light
      * @return all {@link cscie97.asn2.ecommerce.product.Device} objects in the product catalog
      */
     public Set<Device> getDevices() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return this.devices;
     }
 
     /**
@@ -239,6 +344,6 @@ https://github.com/nicholas22/jpropel-light
      * @return total number of content items in the product catalog irrespective of content type
      */
     public int getNumberContentItems() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return this.contentItems.size();
     }
 }

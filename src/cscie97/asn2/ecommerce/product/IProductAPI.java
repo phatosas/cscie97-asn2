@@ -54,11 +54,21 @@ public interface IProductAPI {
      */
     public boolean validateAccessToken(String guid);
 
+    /**
+     * Given a 2-character country code, search for any country that matches in the product catalog.
+     * @param code  a 2-character country code
+     * @return      the found country with the matching code
+     */
+    public Country getCountryByCode(String code);
 
-
-
-
-
+    /**
+     * Given a device ID, search for any {@link cscie97.asn2.ecommerce.product.Device} that matches that code
+     * in the product catalog.
+     *
+     * @param deviceID  a unique device ID
+     * @return          the found {@link cscie97.asn2.ecommerce.product.Device} with the matching ID
+     */
+    public Device getDeviceByID(String deviceID);
 
     /**
      * Public method for importing countries into the product catalog.  Every Content item has a list of Countries

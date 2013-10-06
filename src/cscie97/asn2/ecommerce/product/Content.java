@@ -355,7 +355,7 @@ public abstract class Content {
      */
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("--CONTENT ITEM---\n:") );
+        sb.append(String.format("CONTENT ITEM:\n:") );
         sb.append(String.format("\tTYPE: [%s]\n:", this.getContentType()));
         sb.append(String.format("\tNAME: [%s]\n:", this.getName()));
         sb.append(String.format("\tDESCRIPTION: [%s]\n:", this.getDescription()));
