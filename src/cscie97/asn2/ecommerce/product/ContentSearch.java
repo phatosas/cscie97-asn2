@@ -1,13 +1,7 @@
 package cscie97.asn2.ecommerce.product;
 
-import cscie97.asn2.ecommerce.product.exception.ImportException;
-import cscie97.asn2.ecommerce.product.exception.ParseException;
-import cscie97.asn2.ecommerce.product.exception.QueryEngineException;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.List;
 
 /**
  * Represents a user search query of the {@link cscie97.asn2.ecommerce.product.IProductAPI} for

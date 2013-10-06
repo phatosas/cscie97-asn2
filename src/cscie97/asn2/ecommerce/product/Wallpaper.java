@@ -1,12 +1,8 @@
 package cscie97.asn2.ecommerce.product;
 
-import java.util.Set;
-import cscie97.asn2.ecommerce.product.exception.ImportException;
-import cscie97.asn2.ecommerce.product.exception.ParseException;
-import cscie97.asn2.ecommerce.product.exception.QueryEngineException;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a Wallpaper in the Mobile Application Store.  Wallpapers are {@link cscie97.asn2.ecommerce.product.Content}
@@ -76,6 +72,7 @@ public class Wallpaper extends Content {
      * Class constructor.  Uses primary constructor from {@link cscie97.asn2.ecommerce.product.Content} to set nearly
      * all object properties, except for the Wallpaper-specific pixelWidth and pixelHeight properties.
      *
+     * @param id                  the unique content ID
      * @param name                the content item name
      * @param description         content item description
      * @param authorName          content author's name
@@ -90,14 +87,14 @@ public class Wallpaper extends Content {
      * @param pixelWidth          the width of the wallpaper (in pixels)
      * @param pixelHeight         the height of the wallpaper (in pixels)
      */
-    public Wallpaper(String name, String description, String authorName, int rating, Set<String> categories,
+    public Wallpaper(String id, String name, String description, String authorName, int rating, Set<String> categories,
                    Set<Device> devices, float price, Set<Country> allowedInCountries, Set<String> supportedLanguages,
                    String imageURL, ContentType type, int pixelWidth, int pixelHeight)
     {
-        super(name, description, authorName, rating, categories, devices, price, allowedInCountries, supportedLanguages, imageURL, type);
+        super(id, name, description, authorName, rating, categories, devices, price, allowedInCountries, supportedLanguages, imageURL, type);
         this.pixelHeight = pixelHeight;
         this.pixelWidth = pixelWidth;
-        this.contentType = ContentType.WALLPAPER;
+        this.setContentType(ContentType.WALLPAPER);
     }
 
     /**

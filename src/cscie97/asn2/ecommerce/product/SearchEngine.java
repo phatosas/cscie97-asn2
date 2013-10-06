@@ -2,234 +2,28 @@ package cscie97.asn2.ecommerce.product;
 
 import cscie97.asn2.ecommerce.product.exception.ImportException;
 import cscie97.asn2.ecommerce.product.exception.ParseException;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Arrays;
+import cscie97.asn2.ecommerce.product.exception.QueryEngineException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
- * Provides public static methods for supplying CSV files to load {@link cscie97.asn2.ecommerce.product.Country},
- * {@link cscie97.asn2.ecommerce.product.Device}, and
- * {@link cscie97.asn2.ecommerce.product.Content} items (which may be one of
- * {@link cscie97.asn2.ecommerce.product.Application}, {@link cscie97.asn2.ecommerce.product.Ringtone}, or
- * {@link cscie97.asn2.ecommerce.product.Wallpaper} depending on the content type) into the Product catalog.  The
- * input CSV files passed may contain a header line or comment lines that begin with a "#" symbol; those lines will
- * be skipped for analysis.
- *
- * For importing {@link cscie97.asn2.ecommerce.product.Country} items, the input file must be in the following
- * column format:
- * <ol>
- *     <li>2-character country code</li>
- *     <li>country name</li>
- *     <li>country export status (open or closed)</li>
- * </ol>
- * For example, here is a sample of what a valid country CSV input file might look like (country names that have
- * commas in them may be escaped by putting a backslash in front of the comma):
- * <pre>
- * #country_id, country_name, country_export_status
- * AF,AFGHANISTAN,open
- * AX,ALAND ISLANDS,open
- * AL,ALBANIA,open
- * BO,BOLIVIA\, PLURINATIONAL STATE OF,open
- * BQ,BONAIRE\, SINT EUSTATIUS AND SABA,open
- *  ...
- * </pre>
- *
- * For importing {@link cscie97.asn2.ecommerce.product.Device} items, the input file must be in the following
- * column format:
- * <ol>
- *     <li>unique device ID</li>
- *     <li>device name</li>
- *     <li>device manufacturer name</li>
- * </ol>
- * For example, here is a sample of what a valid device CSV input file might look like (device names that have
- * commas in them may be escaped by putting a backslash in front of the comma):
- * <pre>
- * # device_id, device_name, manufacturer
- * iphone5, IPhone 5, Apple
- * iphone6, IPhone 6, Apple
- * lumina800, Lumina 800, Nokia
- * lumina900, Lumina 900, Nokia
- * ...
- * </pre>
- *
- * For importing {@link cscie97.asn2.ecommerce.product.Content} items (regardless of type), the input file must be
- * in the following column format:
- * <ol>
- *     <li>content type (can be one of "application", "ringtone", or "wallpaper" currently)</li>
- *     <li>ID</li>
- *     <li>content name</li>
- *     <li>description</li>
- *     <li>author name</li>
- *     <li>content rating (0 to 5, where 5 is best)</li>
- *     <li>content categories (pipe-separated)</li>
- *     <li>list of 2-character country codes where the content may be legally downloaded to (pipe-separated)</li>
- *     <li>list of supported device IDs (pipe-separated)</li>
- *     <li>price (as a float, in BitCoins)</li>
- *     <li>list of supported language codes (pipe-separated)</li>
- *     <li>image URL to screenshot, box art, etc.</li>
- *     <li>application filesize in bytes [OPTIONAL, only for {@link cscie97.asn2.ecommerce.product.Application} type content)</li>
- *     <li>ringtone duration in seconds (as a float) [OPTIONAL, only for {@link cscie97.asn2.ecommerce.product.Ringtone} type content)</li>
- *     <li>wallpaper pixel width (integer) [OPTIONAL, only for {@link cscie97.asn2.ecommerce.product.Wallpaper} type content)</li>
- *     <li>wallpaper pixel height (integer) [OPTIONAL, only for {@link cscie97.asn2.ecommerce.product.Wallpaper} type content)</li>
- * </ol>
- * For example, here is a sample of what a valid device CSV input file might look like (device names that have
- * commas in them may be escaped by putting a backslash in front of the comma):
- * <pre>
- * #content_type, content_id, content_name, content_description, author, rating, categories, export_countries,supported_devices,price, supported_languages, image_url, application_size
- * application, a1, Angry Birds Seasons, Angry Birds Seasons, Rovio, 5, game|kids,US|CA|MX,iphone_5|iphone_6|lumina_800,1.5,en_us|en_ca|en_gb, http://web-assets.angrybirds.com/abcom/img/games/223/Icon_download_seasons_223x223.png,564
- * ringtone, rt1, Ferrari 575M Maranello - 2002,This ringtone is a unique and exclusive recording of the 2002 Ferrari 575M Maranello being driven to its limits!,Nutbags,4,car|racing,US|CA|MX|AF|AL,lumina_800,0.0,en_us|en_ca|en_gb,http://p.d.ovi.com/p/g/store/1492679/_02_Ferrari_575M_Maranello-192x192.png
- * ...
- * </pre>
+ * Provides public static methods for querying the {@link cscie97.asn2.ecommerce.product.ProductAPI} for
+ * {@link cscie97.asn2.ecommerce.product.Content} items.  Delegates the actual search logic to the
+ * {@link cscie97.asn2.ecommerce.product.IProductAPI}.  Content items found are printed to standard out.
  *
  * @author David Killeffer <rayden7@gmail.com>
  * @version 1.0
  * @see IProductAPI
  * @See ProductAPI
  * @see Content
- * @see Device
+ * @see Importer
  * @see Application
  * @see Ringtone
  * @see Wallpaper
  */
-public class Importer {
-
-    /**
-     * Private method to parse a line from a CSV input file and return an array of strings.  Splits up the string
-     * based on the supplied separator, and ignores any backslash-escaped separator.
-     *
-     * @param line       the string to parse out and split into an array based on separator
-     * @param separator  the character to use for splitting out the line
-     * @return           an array of strings that were split by the separator
-     */
-    private static String[] parseCSVLine(String line, String separator) {
-        // need to do a negative lookbehind to properly escape the backslash-preceeding characters that come
-        // immediately prior to the passed separator in input strings (help from:
-        // http://stackoverflow.com/questions/820172/how-to-split-a-comma-separated-string-while-ignoring-escaped-commas)
-        String[] parts = line.split("(?<!\\\\)"+separator);
-
-        // remove any remaining backslash characters from each of the parts if that backslash is immediately
-        // followed by a comma (which is the way our CSVs are formatted to escape inline commas per column
-        for(int i=0; i<parts.length; i++) {
-            parts[i] = parts[i].replaceAll("\\\\,+", ",");
-        }
-        return parts;
-    }
-
-    /**
-     * Public method for importing {@link cscie97.asn2.ecommerce.product.Country} items into the product catalog.
-     * Checks for valid input file name.
-     * Throws ImportException on error accessing or processing the input Country File.
-     *
-     * @param filename                file with countries to load into the product catalog
-     * @throws ImportException        thrown when encountering non-parse related exceptions in the import process
-     * @throws ParseException         thrown when encountering any issues parsing the input file related to the format of the file contents
-     */
-    public static void importCountryFile(String guid, String filename) throws ImportException, ParseException {
-        int lineNumber = 0;  // keep track of what lineNumber we're reading in from the input file for exception handling
-        String line = null;  // store the text on each line as it's processed
-        IProductAPI productAPI = ProductAPI.getInstance();  // reference to ProductAPI for adding the countries
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(filename));
-            List<Country> countries = new ArrayList<Country>();
-
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-
-                // FIRST check if we encountered an empty line, and just skip to the next one if so
-                if (line.length() == 0) { continue; }
-
-                // SECOND check if the line contains column headers, since some lines may contain comments
-                // (preceeded by hash character); if first character is a hash, skip to next line
-                if (line.substring(0,1).matches("#")) { continue; }
-
-                String[] cleanedColumns = Importer.parseCSVLine(line, ",");
-                if (cleanedColumns != null && cleanedColumns.length == 3) {
-                    Country country = new Country(cleanedColumns[0], cleanedColumns[1], cleanedColumns[2]);
-                    countries.add(country);
-                } else {
-                    throw new ParseException("Import Country line contains invalid data for some of the country attributes.",
-                                                line,
-                                                lineNumber,
-                                                filename,
-                                                null);
-                }
-            }
-            // add the countries to the Product catalog
-            if (countries.size() > 0) {
-                productAPI.importCountries(guid, countries);
-            }
-        }
-        catch (FileNotFoundException fnfe) {
-            throw new ImportException("Could not find file ["+filename+"] to open for reading", lineNumber, filename, fnfe);
-        }
-        catch (IOException ioe) {
-            throw new ImportException("Encountered an IOException when trying to open ["+filename+"] for reading", lineNumber, filename, ioe);
-        }
-        catch (Exception e) {
-            throw new ImportException("Caught a generic Exception when attempting to read file ["+filename+"]", lineNumber, filename, e);
-        }
-    }
-
-    /**
-     * Public method for importing {@link cscie97.asn2.ecommerce.product.Device} items into the product catalog.
-     * Checks for valid input file name.
-     * Throws ImportException on error accessing or processing the input Device File.
-     *
-     * @param filename                file with devices to load into the product catalog
-     * @throws ImportException        thrown when encountering non-parse related exceptions in the import process
-     * @throws ParseException         thrown when encountering any issues parsing the input file related to the format of the file contents
-     */
-    public static void importDeviceFile(String guid, String filename) throws ImportException, ParseException {
-        int lineNumber = 0;  // keep track of what lineNumber we're reading in from the input file for exception handling
-        String line = null;  // store the text on each line as it's processed
-        IProductAPI productAPI = ProductAPI.getInstance();  // reference to ProductAPI for adding the devices
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(filename));
-            List<Device> devices = new ArrayList<Device>();
-
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-
-                // FIRST check if we encountered an empty line, and just skip to the next one if so
-                if (line.length() == 0) { continue; }
-
-                // SECOND check if the line contains column headers, since some lines may contain comments
-                // (preceeded by hash character); if first character is a hash, skip to next line
-                if (line.substring(0,1).matches("#")) { continue; }
-
-                String[] cleanedColumns = Importer.parseCSVLine(line, ",");
-                if (cleanedColumns != null && cleanedColumns.length == 3) {
-                    Device device = new Device(cleanedColumns[0], cleanedColumns[1], cleanedColumns[2]);
-                    devices.add(device);
-                } else {
-                    throw new ParseException("Import Device line contains invalid data for some of the device attributes.",
-                                                line,
-                                                lineNumber,
-                                                filename,
-                                                null);
-                }
-            }
-            // add the devices to the Product catalog
-            if (devices.size() > 0) {
-                productAPI.importDevices(guid, devices);
-            }
-        }
-        catch (FileNotFoundException fnfe) {
-            throw new ImportException("Could not find file ["+filename+"] to open for reading", lineNumber, filename, fnfe);
-        }
-        catch (IOException ioe) {
-            throw new ImportException("Encountered an IOException when trying to open ["+filename+"] for reading", lineNumber, filename, ioe);
-        }
-        catch (Exception e) {
-            throw new ImportException("Caught a generic Exception when attempting to read file ["+filename+"]", lineNumber, filename, e);
-        }
-    }
+public class SearchEngine {
 
     /**
      * Public method for importing {@link cscie97.asn2.ecommerce.product.Content} items into the product catalog.
@@ -246,6 +40,7 @@ public class Importer {
      * @throws ImportException        thrown when encountering non-parse related exceptions in the import process
      * @throws ParseException         thrown when encountering any issues parsing the input file related to the format of the file contents
      */
+    /*
     public static void importContentFile(String guid, String filename) throws ImportException, ParseException {
         int lineNumber = 0;  // keep track of what lineNumber we're reading in from the input file for exception handling
         String line = null;  // store the text on each line as it's processed
@@ -269,7 +64,6 @@ public class Importer {
                 // can be 12 or 13 columns long (13 contains the filesize for applications)
                 if (cleanedColumns != null && cleanedColumns.length >= 12 && cleanedColumns.length <= 13) {
                     // set up empty values for the content that will be parsed out from the line
-                    String contentID = "";
                     String contentName = "";
                     String contentDescription = "";
                     String contentAuthorName = "";
@@ -292,10 +86,6 @@ public class Importer {
                     // get the content type
                     if (cleanedColumns[0] != null && allContentTypes.contains(ContentType.valueOf(upperCaseContentType)) ) {
                         contentType = ContentType.valueOf(cleanedColumns[0].toUpperCase());
-                    }
-                    // get the content ID
-                    if (cleanedColumns[1] != null && cleanedColumns[1].length() > 0) {
-                        contentID = cleanedColumns[1].trim();
                     }
                     // get the content name
                     if (cleanedColumns[2] != null && cleanedColumns[2].length() > 0) {
@@ -436,28 +226,27 @@ public class Importer {
                                                     null);
                     }
 
-                    // call the appropriate content type class constructor based on the parsed values from the CSV line
+
                     switch (contentType) {
                         case APPLICATION :
-                            Content application = new Application(contentID, contentName, contentDescription,
-                                                                  contentAuthorName, contentRating, contentCategories,
-                                                                  contentDevices, contentPrice, contentCountries,
-                                                                  contentSupportedLanguages, contentImageURL,
-                                                                  contentType, contentFilesizeBytes);
+                            Content application = new Application(contentName, contentDescription, contentAuthorName,
+                                                              contentRating, contentCategories, contentDevices,
+                                                              contentPrice, contentCountries, contentSupportedLanguages,
+                                                              contentImageURL, contentType, contentFilesizeBytes);
                             contentItemsToAdd.add(application);
                             break;
                         case RINGTONE :
-                            Content ringtone = new Ringtone(contentID, contentName, contentDescription, contentAuthorName,
-                                                            contentRating, contentCategories, contentDevices,
-                                                            contentPrice, contentCountries, contentSupportedLanguages,
-                                                            contentImageURL, contentType, contentDurationInSeconds);
+                            Content ringtone = new Ringtone(contentName, contentDescription, contentAuthorName,
+                                                              contentRating, contentCategories, contentDevices,
+                                                              contentPrice, contentCountries, contentSupportedLanguages,
+                                                              contentImageURL, contentType, contentDurationInSeconds);
                             contentItemsToAdd.add(ringtone);
                             break;
                         case WALLPAPER :
-                            Content wallpaper = new Wallpaper(contentID, contentName, contentDescription, contentAuthorName,
+                            Content wallpaper = new Wallpaper(contentName, contentDescription, contentAuthorName,
                                                               contentRating, contentCategories, contentDevices,
                                                               contentPrice, contentCountries, contentSupportedLanguages,
-                                                              contentImageURL, contentType, contentPixelWidth, contentPixelHeight);
+                                                              contentImageURL, contentType, 1920, 1080);
                             contentItemsToAdd.add(wallpaper);
                             break;
                     }
@@ -483,6 +272,66 @@ public class Importer {
         catch (Exception e) {
             throw new ImportException("Caught a generic Exception when attempting to read file ["+filename+"]", lineNumber, filename, e);
         }
+    }
+    */
+
+
+    public static void executeQuery(String queryLine) {
+
+    }
+
+
+    /*
+# catgory list, text search, minimum rating, max price, language list, country code, device id, content type list
+
+# search for “Ferrari” in name or description
+, Ferrari, , , , , ,
+
+# search for all content with a minimum rating of 4 and a price of 0 or less (i.e. free)
+, , 4, 0, , , ,
+    */
+
+
+    /**
+     * Public method for importing search queries against the {@link cscie97.asn2.ecommerce.product.ProductAPI} for
+     * {@link cscie97.asn2.ecommerce.product.Content} items.  Content may be searched for using any available
+     * properties of the content (including content type specific attributes, such as
+     * {@link cscie97.asn2.ecommerce.product.Application#fileSizeBytes},
+     * {@link cscie97.asn2.ecommerce.product.Ringtone#durationInSeconds}, etc.).
+
+     *
+     *
+     *
+     * {@link cscie97.asn2.ecommerce.product.Content} items into the product catalog.
+     * Note that any {@link cscie97.asn2.ecommerce.product.Device} or {@link cscie97.asn2.ecommerce.product.Country}
+     * items referenced by the individual content items to add must already exist in the Product catalog first, or the
+     * import of that content item will not work.  Depending on the content type of each item in the input file, will
+     * conditionally add the content items to the product catalog as either an
+     * {@link cscie97.asn2.ecommerce.product.Application},
+     * {@link cscie97.asn2.ecommerce.product.Ringtone}, or {@link cscie97.asn2.ecommerce.product.Wallpaper}.
+     * Checks for valid input file name.
+     * Throws ImportException on error accessing or processing the input Content File.
+     *
+     * @param filename                file with content items to load into the product catalog
+     * @throws ImportException        thrown when encountering non-parse related exceptions in the import process
+     * @throws ParseException         thrown when encountering any issues parsing the input file related to the format of the file contents
+     */
+    public static void executeQueryFilename(String filename) throws QueryEngineException, ImportException, ParseException {
+
+        Set<String> categories = new HashSet<String>();
+        Set<String> supportedLanguages = new HashSet<String>();
+        Country country = new Country("","","");
+        Device device = new Device("","","");
+        Set<ContentType> contentTypes = new HashSet<ContentType>();
+
+        ContentSearch contentSearch = new ContentSearch(categories, "", 0, 0, supportedLanguages, country, device, contentTypes);
+
+        //List<ContentSearch> searchList = new ArrayList<ContentSearch>() { Arrays.asList<ContentSearch>(contentSearch) };
+        List<ContentSearch> searchList = new ArrayList<ContentSearch>();
+        searchList.add(contentSearch);
+
+        //return searchList;
+        //ContentSearch(categories, "", 0, 0, supportedLanguages, country, device, contentTypes);
     }
 
 }

@@ -1,12 +1,8 @@
 package cscie97.asn2.ecommerce.product;
 
-import java.util.Set;
-import cscie97.asn2.ecommerce.product.exception.ImportException;
-import cscie97.asn2.ecommerce.product.exception.ParseException;
-import cscie97.asn2.ecommerce.product.exception.QueryEngineException;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Represents an Application in the Mobile Application Store.  Applications are
@@ -53,6 +49,7 @@ public class Application extends Content {
      * Class constructor.  Uses primary constructor from {@link cscie97.asn2.ecommerce.product.Content} to set nearly
      * all object properties, except for the Application-specific fileSizeBytes.
      *
+     * @param id                  the unique content ID
      * @param name                the content item name
      * @param description         content item description
      * @param authorName          content author's name
@@ -66,13 +63,13 @@ public class Application extends Content {
      * @param type                the {@link cscie97.asn2.ecommerce.product.ContentType} of the item
      * @param fileSizeBytes       the size of the application file (in bytes)
      */
-    public Application(String name, String description, String authorName, int rating, Set<String> categories,
+    public Application(String id, String name, String description, String authorName, int rating, Set<String> categories,
                    Set<Device> devices, float price, Set<Country> allowedInCountries, Set<String> supportedLanguages,
                    String imageURL, ContentType type, int fileSizeBytes)
     {
-        super(name, description, authorName, rating, categories, devices, price, allowedInCountries, supportedLanguages, imageURL, type);
+        super(id, name, description, authorName, rating, categories, devices, price, allowedInCountries, supportedLanguages, imageURL, type);
         this.fileSizeBytes = fileSizeBytes;
-        this.contentType = ContentType.APPLICATION;
+        this.setContentType(ContentType.APPLICATION);
     }
 
     /**

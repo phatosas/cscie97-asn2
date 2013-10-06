@@ -1,18 +1,15 @@
 package cscie97.asn2.ecommerce.product;
 
-import cscie97.asn2.ecommerce.product.exception.ImportException;
-import cscie97.asn2.ecommerce.product.exception.ParseException;
-import cscie97.asn2.ecommerce.product.exception.QueryEngineException;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.Set;
-import java.util.List;
 
 /**
  * Abstract class representing a content item that is included in the Mobile Application Store.  Attributes here
  * are common to all items in the store, regardless of type.  All content items (regardless of type) have
  * the following attributes:
  * <ul>
+ *     <li>must have an <b>ID</b></li>
  *     <li>must have a <b>name</b></li>
  *     <li>must have a <b>description</b></li>
  *     <li>must have an <b>authorName</b></li>
@@ -41,60 +38,83 @@ import java.util.List;
 public abstract class Content {
 
     /**
+     * A unique string identifier for each content item
+     */
+    private String id;
+
+    /**
      * Name of the Content item
      */
-    public String name;
+    private String name;
 
     /**
      * A brief description of what this Content item is and it's features.
      */
-    public String description;
+    private String description;
 
     /**
      * The author name of the Content item
      */
-    public String authorName;
+    private String authorName;
 
     /**
      * A rating for this content item as voted on by the public; range is from 0 to 5 where 5 is best.
      */
-    public int rating = 0;
+    private int rating = 0;
 
     /**
      * A list of unique categories that the author of the Content item wanted this to be categorized under.
      */
-    public Set<String> categories;
+    private Set<String> categories;
 
     /**
      * All the unique Devices that this content item is compatible with for use.
      */
-    public Set<Device> compatibleDevices;
+    private Set<Device> compatibleDevices;
 
     /**
      * The price to purchase this item in BitCoins.
      */
-    public float price = 0;
+    private float price = 0;
 
     /**
      * All the countries where downloading this content is legal.
      */
-    public Set<Country> allowedInCountries;
+    private Set<Country> allowedInCountries;
 
     /**
      * A list of the languages that are supported by the content item.
      */
-    public Set<String> supportedLanguages;
+    private Set<String> supportedLanguages;
 
     /**
      * A link to a public image of the Content item.
      */
-    public String imageURL;
+    private String imageURL;
 
     /**
      * Which type of content the item is; currently only APPLICATION, RINGTONE, and WALLPAPER are supported
      * in the Mobile Application Store.
      */
-    public ContentType contentType;
+    private ContentType contentType;
+
+    /**
+     * Returns the unique content ID of the item.
+     *
+     * @return  the unique content ID
+     */
+    public String getID() {
+        return id;
+    }
+
+    /**
+     * Sets the unique content ID for this content item.
+     *
+     * @param id  the unique content ID to use for the content item
+     */
+    public void setID(String id) {
+        this.id = id;
+    }
 
     /**
      * Returns the name of the content item.
@@ -297,6 +317,7 @@ public abstract class Content {
     /**
      * Class constructor.
      *
+     * @param id                  the unique content ID
      * @param name                the content item name
      * @param description         content item description
      * @param authorName          content author's name
@@ -309,10 +330,11 @@ public abstract class Content {
      * @param imageURL            a string to a public URL image of the content
      * @param type                the {@link cscie97.asn2.ecommerce.product.ContentType} of the item
      */
-    public Content(String name, String description, String authorName, int rating, Set<String> categories,
+    public Content(String id, String name, String description, String authorName, int rating, Set<String> categories,
                    Set<Device> devices, float price, Set<Country> allowedInCountries, Set<String> supportedLanguages,
                    String imageURL, ContentType type)
     {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.authorName = authorName;
@@ -336,6 +358,7 @@ public abstract class Content {
      */
     public static boolean validateContent(Content content) {
         return (
+                (content.getID() != null && content.getID().length() > 0) &&
                 (content.getName() != null && content.getName().length() > 0) &&
                 (content.getDescription() != null && content.getDescription().length() > 0) &&
                 (content.getAuthorName() != null && content.getAuthorName().length() > 0) &&
@@ -357,6 +380,7 @@ public abstract class Content {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("CONTENT ITEM:\n:") );
         sb.append(String.format("\tTYPE: [%s]\n:", this.getContentType()));
+        sb.append(String.format("\tID: [%s]\n:", this.getID()));
         sb.append(String.format("\tNAME: [%s]\n:", this.getName()));
         sb.append(String.format("\tDESCRIPTION: [%s]\n:", this.getDescription()));
         sb.append(String.format("\tAUTHOR NAME: [%s]\n:", this.getAuthorName()));
@@ -395,6 +419,7 @@ public abstract class Content {
         Content rhs = (Content) compare;
         return new EqualsBuilder()
                 .appendSuper(super.equals(compare))
+                .append(this.id, rhs.getID())
                 .append(this.name, rhs.getName())
                 .append(this.description, rhs.getDescription())
                 .append(this.authorName, rhs.getAuthorName())

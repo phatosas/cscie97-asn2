@@ -1,12 +1,8 @@
 package cscie97.asn2.ecommerce.product;
 
-import java.util.Set;
-import cscie97.asn2.ecommerce.product.exception.ImportException;
-import cscie97.asn2.ecommerce.product.exception.ParseException;
-import cscie97.asn2.ecommerce.product.exception.QueryEngineException;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a Ringtone in the Mobile Application Store.  Ringtones are {@link cscie97.asn2.ecommerce.product.Content}
@@ -53,6 +49,7 @@ public class Ringtone extends Content {
      * Class constructor.  Uses primary constructor from {@link cscie97.asn2.ecommerce.product.Content} to set nearly
      * all object properties, except for the Ringtone-specific durationInSeconds.
      *
+     * @param id                  the unique content ID
      * @param name                the content item name
      * @param description         content item description
      * @param authorName          content author's name
@@ -66,13 +63,13 @@ public class Ringtone extends Content {
      * @param type                the {@link cscie97.asn2.ecommerce.product.ContentType} of the item
      * @param durationInSeconds   the duration of the ringtone when played (in seconds)
      */
-    public Ringtone(String name, String description, String authorName, int rating, Set<String> categories,
+    public Ringtone(String id, String name, String description, String authorName, int rating, Set<String> categories,
                    Set<Device> devices, float price, Set<Country> allowedInCountries, Set<String> supportedLanguages,
                    String imageURL, ContentType type, float durationInSeconds)
     {
-        super(name, description, authorName, rating, categories, devices, price, allowedInCountries, supportedLanguages, imageURL, type);
+        super(id, name, description, authorName, rating, categories, devices, price, allowedInCountries, supportedLanguages, imageURL, type);
         this.durationInSeconds = durationInSeconds;
-        this.contentType = ContentType.RINGTONE;
+        this.setContentType(ContentType.RINGTONE);
     }
 
     /**

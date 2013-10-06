@@ -3,7 +3,6 @@ package cscie97.asn2.ecommerce.product;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-
 /**
  * Content in the Mobile Application Store may be downloaded to consumers devices all over the world.  Some
  * countries may not allow certain types of encyption, applications, etc. based on local, regional, or national

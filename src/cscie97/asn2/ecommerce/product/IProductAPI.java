@@ -1,10 +1,7 @@
 package cscie97.asn2.ecommerce.product;
 
-import cscie97.asn2.ecommerce.product.exception.ImportException;
-import cscie97.asn2.ecommerce.product.exception.ParseException;
-import cscie97.asn2.ecommerce.product.exception.QueryEngineException;
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A public API for interacting with the Mobile Application Store which allowed for the importation of new
