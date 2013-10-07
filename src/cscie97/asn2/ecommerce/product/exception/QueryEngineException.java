@@ -1,15 +1,12 @@
 package cscie97.asn2.ecommerce.product.exception;
 
 /**
- * Exception for problems that the {@link cscie97.asn1.knowledge.engine.QueryEngine} or
- * {@link cscie97.asn1.knowledge.engine.KnowledgeGraph} may run into during typical query execution.
+ * Exception for problems that the {@link cscie97.asn2.ecommerce.product.SearchEngine} may run into during typical
+ * query execution.
  *
  * @author David Killeffer <rayden7@gmail.com>
  * @version 1.0
- * @see cscie97.asn1.knowledge.engine.KnowledgeGraph
- * @see cscie97.asn1.knowledge.engine.QueryEngine
- * @see cscie97.asn1.knowledge.engine.Triple
- * @see cscie97.asn1.knowledge.engine.Importer
+ * @see cscie97.asn2.ecommerce.product.SearchEngine
  */
 public class QueryEngineException extends Exception {
 
@@ -38,7 +35,17 @@ public class QueryEngineException extends Exception {
      */
     private Throwable originalCause;
 
-
+    /**
+     * Wraps a more generic exception that may have been thrown in the
+     * {@link cscie97.asn2.ecommerce.product.SearchEngine} class.  Arguments contain more specific details about
+     * the exception to simplify debugging.
+     *
+     * @param msg       the exception message from the throwing cause
+     * @param query     the string value of the line that caused the exception
+     * @param lineNum   the line number in the file that caused the exception
+     * @param filename  the filename that was the cause of the original exception
+     * @param cause     the wrapped lower-level exception that triggered this exception's creation
+     */
     public QueryEngineException (String msg, String query, int lineNum, String filename, Throwable cause) {
         super("QueryEngineException occurred on query [" + query + "] of query file " + filename + " in line number [" + lineNum + "]", cause);
 
@@ -47,7 +54,6 @@ public class QueryEngineException extends Exception {
         this.filename = filename;
         this.originalCause = cause;
     }
-
 
     /**
      * Returns the original string query that triggered the exception

@@ -1,13 +1,14 @@
 package cscie97.asn2.ecommerce.product.exception;
 
 /**
- * Exception for problems that the {@link cscie97.asn1.knowledge.engine.Importer} may run into during typical
- * operation.  This class will wrap lower-level exceptions (such as FileNotFoundException, IOException, and
- * generic Exception).
+ * Exception for problems that the {@link cscie97.asn2.ecommerce.product.Importer} and
+ * {@link cscie97.asn2.ecommerce.product.SearchEngine} may run into during typical operation.  This class will
+ * wrap lower-level exceptions (such as FileNotFoundException, IOException, and generic Exception).
  *
  * @author David Killeffer <rayden7@gmail.com>
  * @version 1.0
- * @see cscie97.asn1.knowledge.engine.Importer
+ * @see cscie97.asn2.ecommerce.product.Importer
+ * @see cscie97.asn2.ecommerce.product.SearchEngine
  */
 public class ImportException extends Exception {
 
@@ -31,10 +32,10 @@ public class ImportException extends Exception {
      */
     private Throwable originalCause;
 
-
     /**
-     * Wraps a more generic exception that may have been thrown in the {@link cscie97.asn1.knowledge.engine.Importer}
-     * class.  Arguments contain more specific details about the exception to simplify debugging.
+     * Wraps a more generic exception that may have been thrown in either {@link cscie97.asn2.ecommerce.product.Importer}
+     * or {@link cscie97.asn2.ecommerce.product.SearchEngine} class.  Arguments contain more specific details about the
+     * exception to simplify debugging.
      *
      * @param line      the string value of the line that caused the exception
      * @param lineNum   the line number in the file that caused the exception
@@ -43,7 +44,6 @@ public class ImportException extends Exception {
      */
     public ImportException (String line, int lineNum, String filename, Throwable cause) {
         super("ImportException occurred at line #" + lineNum + " of file " + filename + " in line number [" + lineNum + "]", cause);
-
         this.lineWhereFailed = line;
         this.lineIndexWhereFailed = lineNum;
         this.filename = filename;

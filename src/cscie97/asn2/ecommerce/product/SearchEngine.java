@@ -7,11 +7,40 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+
 
 /**
  * Provides public static methods for querying the {@link cscie97.asn2.ecommerce.product.ProductAPI} for
  * {@link cscie97.asn2.ecommerce.product.Content} items.  Delegates the actual search logic to the
- * {@link cscie97.asn2.ecommerce.product.IProductAPI}.  Content items found are printed to standard out.
+ * {@link cscie97.asn2.ecommerce.product.IProductAPI}.
+ *
+ * For executing {@link cscie97.asn2.ecommerce.product.Content} searches by passing in a CSV with search criteria, the
+ * query file must be in the following column format:
+ * <ol>
+ *     <li>list of content categories (pipe-separated)</li>
+ *     <li>search text (will scan {@link cscie97.asn2.ecommerce.product.Content} name, description, author name)</li>
+ *     <li><b>minimum</b> content rating (from 0 to 5, where 5 is best)</li>
+ *     <li><b>maximum</b> price (as a float, in BitCoins)</li>
+ *     <li>list of supported language codes (pipe-separated)</li>
+ *     <li>list of country codes (pipe-separated)</li>
+ *     <li>device ID</li>
+ *     <li>list of content types (can be any or all of "application", "ringtone", or "wallpaper" currently)</li>
+ * </ol>
+ * For example, here is a sample of what a valid content item query CSV file might look like:
+ * <pre>
+ * # catgory_list, text_search, minimum_rating, max_price, language_list, country_code, device_id, content_type_list
+ * # search for “Ferrari” in name or description
+ *  , Ferrari, , , , , ,
+ * # search for all content with a minimum rating of 4 and a price of 0 or less (i.e. free)
+ *  , , 4, 0, , , ,
+ * ...
+ * </pre>
+ * Content items found are printed to standard out.
  *
  * @author David Killeffer <rayden7@gmail.com>
  * @version 1.0
@@ -26,29 +55,229 @@ import java.util.Set;
 public class SearchEngine {
 
     /**
-     * Public method for importing {@link cscie97.asn2.ecommerce.product.Content} items into the product catalog.
-     * Note that any {@link cscie97.asn2.ecommerce.product.Device} or {@link cscie97.asn2.ecommerce.product.Country}
-     * items referenced by the individual content items to add must already exist in the Product catalog first, or the
-     * import of that content item will not work.  Depending on the content type of each item in the input file, will
-     * conditionally add the content items to the product catalog as either an
-     * {@link cscie97.asn2.ecommerce.product.Application},
-     * {@link cscie97.asn2.ecommerce.product.Ringtone}, or {@link cscie97.asn2.ecommerce.product.Wallpaper}.
-     * Checks for valid input file name.
-     * Throws ImportException on error accessing or processing the input Content File.
+     * Given a string line from the original query CSV file, parse out the contents of the search query and create a
+     * new {@link cscie97.asn2.ecommerce.product.ContentSearch} object that can be passed to
+     * {@link cscie97.asn2.ecommerce.product.IProductAPI} to execute the actual query and find matching content items.
+     * Found matching content items are printed to standard out.
      *
-     * @param filename                file with content items to load into the product catalog
-     * @throws ImportException        thrown when encountering non-parse related exceptions in the import process
+     * @param queryLine         the original line from the search CSV to search for matching content
+     * @throws ParseException   if there is an issue parsing out the search content query criteria from queryLine
+     */
+    public static void executeQuery(String queryLine) throws ParseException {
+        // detect and reject invalid input query lines
+        if (queryLine == null || queryLine.length() == 0) {
+            throw new ParseException("Search query line is invalid for parsing to search for content ["+queryLine+"]", null, -1, null, null);
+        }
+
+        IProductAPI productAPI = ProductAPI.getInstance();  // reference to ProductAPI for searching for content items
+
+        // break out the content search query into its constituent parts
+        String[] cleanedColumns = Importer.parseCSVLine(queryLine, ",");
+
+        // if there was a problem parsing out the search criteria, throw a ParseException
+        if (cleanedColumns == null || cleanedColumns.length != 8) {
+            throw new ParseException("Unable to properly parse search content query ["+queryLine+"]; expected 8 search criteria, but only found ["+cleanedColumns.length+"]", null, -1, null, null);
+        }
+
+        // remove any leading or trailing whitespaces from the cleaned columns
+        for (int i=0; i<cleanedColumns.length; i++) {
+            cleanedColumns[i] = cleanedColumns[i].trim();
+        }
+
+        // search criteria will be added to this object as the individual criteria columns are parsed
+        ContentSearch searchCriteria = new ContentSearch();
+        searchCriteria.setRawQuery(queryLine);
+
+        /*
+        // parsed search criteria are valid; set up empty values for search criteria that will be parsed out from the line
+        Set<String> searchContentCategories = new HashSet<String>(){};
+        String searchContentString = "";
+        int searchContentMinimumRating = 0;  // default to search for all content
+        float searchContentMaximumPrice = Float.MAX_VALUE;  // default to use the lowest price possible
+        Set<String> searchContentSupportedLanguages = new HashSet<String>(){};
+        Set<Country> searchContentCountries = new HashSet<Country>(){};
+        Set<Device> searchContentDevices = new HashSet<Device>(){};
+        Set<ContentType> searchContentTypes = new HashSet<ContentType>(){};
+        */
+
+
+        // get the search content categories
+        if (cleanedColumns[0] != null && cleanedColumns[0].length() > 0) {
+            // need to parse out the search categories by splitting on the pipe character
+            String[] parsedCategories = Importer.parseCSVLine(cleanedColumns[0], "\\|");
+            if (parsedCategories != null && parsedCategories.length > 0) {
+                //searchContentCategories.addAll(Arrays.asList(parsedCategories));
+                searchCriteria.setCategories(new HashSet<String>(Arrays.asList(parsedCategories)));
+            }
+        }
+        // get the search content text string
+        if (cleanedColumns[1] != null && cleanedColumns[1].length() > 0) {
+            //searchContentString = cleanedColumns[1].trim();
+            searchCriteria.setTextSearch(cleanedColumns[1].trim());
+        }
+        // get the search content minimum rating
+        if (cleanedColumns[2] != null && cleanedColumns[2].length() == 1) {
+            try {
+                //searchContentMinimumRating = Integer.parseInt(cleanedColumns[2]);
+                searchCriteria.setMinimumRating(Integer.parseInt(cleanedColumns[2]));
+            }
+            catch (NumberFormatException nfe) {
+                throw new ParseException("Execute Query line contains invalid data for the minimum content rating ["+cleanedColumns[2].toString()+"].",
+                        queryLine,
+                        -1,
+                        null,
+                        null);
+            }
+        }
+        // get the search content maximum price
+        if (cleanedColumns[3] != null && cleanedColumns[3].length() == 1) {
+            try {
+                //searchContentMaximumPrice = Float.parseFloat(cleanedColumns[3]);
+                searchCriteria.setMaximumPrice(Float.parseFloat(cleanedColumns[3]));
+            }
+            catch (NumberFormatException nfe) {
+                throw new ParseException("Execute Query line contains invalid data for the maximum content price ["+cleanedColumns[3].toString()+"].",
+                        queryLine,
+                        -1,
+                        null,
+                        null);
+            }
+        }
+        // get the search content supported languages
+        if (cleanedColumns[4] != null && cleanedColumns[4].length() > 0) {
+            // need to parse out the supported languages by splitting on the pipe character
+            String[] parsedLanguages = Importer.parseCSVLine(cleanedColumns[4], "\\|");
+            if (parsedLanguages != null && parsedLanguages.length > 0) {
+                //searchContentSupportedLanguages.addAll(Arrays.asList(parsedLanguages));
+                searchCriteria.setSupportedLanguages(new HashSet<String>(Arrays.asList(parsedLanguages)));
+            }
+        }
+        // get the search content countries
+        if (cleanedColumns[5] != null && cleanedColumns[5].length() > 0) {
+            // need to parse out the countries by splitting on the pipe character
+            String[] parsedCountries = Importer.parseCSVLine(cleanedColumns[5], "\\|");
+            if (parsedCountries != null && parsedCountries.length > 0) {
+                HashSet<Country> foundCountries = new HashSet<Country>();
+                for (String countryCode : parsedCountries) {
+                    Country foundCountry = productAPI.getCountryByCode(countryCode);
+                    if (foundCountry != null) {
+                        foundCountries.add(foundCountry);
+                        //searchContentCountries.add(foundCountry);
+                    }
+                }
+                searchCriteria.setCountries(foundCountries);
+            }
+        }
+        // get the search content supported devices
+        if (cleanedColumns[6] != null && cleanedColumns[6].length() > 0) {
+            // need to parse out the devices by splitting on the pipe character
+            String[] parsedDevices = Importer.parseCSVLine(cleanedColumns[6], "\\|");
+            if (parsedDevices != null && parsedDevices.length > 0) {
+                HashSet<Device> foundDevices = new HashSet<Device>();
+                for (String deviceID : parsedDevices) {
+                    Device foundDevice = productAPI.getDeviceByID(deviceID);
+                    if (foundDevice != null) {
+                        //searchContentDevices.add(foundDevice);
+                        foundDevices.add(foundDevice);
+                    }
+                }
+                searchCriteria.setDevices(foundDevices);
+            }
+        }
+        // get the search content types
+        List<ContentType> allContentTypes = Arrays.asList( ContentType.values());
+        if (cleanedColumns[7] != null && cleanedColumns[7].length() > 0) {
+            // need to parse out the content types by splitting on the pipe character
+            String[] parsedContentTypes = Importer.parseCSVLine(cleanedColumns[7], "\\|");
+            if (parsedContentTypes != null && parsedContentTypes.length > 0) {
+                HashSet<ContentType> foundContentTypes = new HashSet<ContentType>();
+                for (String contentTypeID : parsedContentTypes) {
+                    ContentType matchingContentType = ContentType.valueOf(contentTypeID);
+                    if (matchingContentType != null) {
+                        //searchContentTypes.add(matchingContentType);
+                        foundContentTypes.add(matchingContentType);
+                    }
+                }
+                if (foundContentTypes.size() > 0) {
+                    searchCriteria.setContentTypes(foundContentTypes);
+                } else {
+                    searchCriteria.setContentTypes(new HashSet(allContentTypes));
+                }
+            }
+        }
+        // no content types specified for querying, so by default add ALL the content types
+        else {
+            searchCriteria.setContentTypes(new HashSet(allContentTypes));
+        }
+
+        /*
+        // now that we have all the search criteria parsed, cleaned, etc., create our ContentSearch object
+        ContentSearch search = new ContentSearch(searchContentCategories, searchContentString,
+                                                 searchContentMinimumRating, searchContentMaximumPrice,
+                                                 searchContentSupportedLanguages, searchContentCountries,
+                                                 searchContentDevices, searchContentTypes);
+        List<Content> foundContent = productAPI.searchContent(search);
+        */
+
+        // show the original query as a ContentSearch
+        System.out.println(String.format("CONTENT SEARCH QUERY: %s\n", searchCriteria));
+
+        List<Content> foundContent = productAPI.searchContent(searchCriteria);
+        if (foundContent.size() > 0) {
+            System.out.println(String.format("\t[%d] CONTENT ITEMS MATCH YOUR SEARCH CRITERIA:\n\n", foundContent.size()));
+        } else {
+            System.out.println("\tNO CONTENT ITEMS MATCH YOUR SEARCH CRITERIA.\n\n");
+        }
+
+        int resultsCounter = 1;
+        for (Content item : foundContent) {
+            /*
+            // so that each content item uses it's appropriate toString() for printout, cast the content items to their respective types
+            if (item instanceof Application) {
+                item = (Application)item;
+            }
+            else if (item instanceof Ringtone) {
+                item = (Ringtone)item;
+            }
+            else if (item instanceof Wallpaper) {
+                item = (Wallpaper)item;
+            }
+            */
+            System.out.println(String.format("MATCHING CONTENT ITEM #%d:\n%s", resultsCounter, item));
+            resultsCounter++;
+        }
+        System.out.println(String.format("\n******************************\n"));
+    }
+
+    /**
+     * Public method for executing search queries against the {@link cscie97.asn2.ecommerce.product.ProductAPI} for
+     * {@link cscie97.asn2.ecommerce.product.Content} items.  Content may be searched for using any of the following
+     * properties of {@link cscie97.asn2.ecommerce.product.Content} items:
+     * <ol>
+     *     <li>list of content categories (pipe-separated)</li>
+     *     <li>search text (will scan {@link cscie97.asn2.ecommerce.product.Content} name, description, author name)</li>
+     *     <li><b>minimum</b> content rating (from 0 to 5, where 5 is best)</li>
+     *     <li><b>maximum</b> price (as a float, in BitCoins)</li>
+     *     <li>list of supported language codes (pipe-separated)</li>
+     *     <li>list of country codes (pipe-separated)</li>
+     *     <li>device ID</li>
+     *     <li>list of content types (can be any or all of "application", "ringtone", or "wallpaper" currently)</li>
+     * </ol>
+     * Checks for valid input file name.
+     * Delegates to {@link cscie97.asn2.ecommerce.product.SearchEngine#executeQuery(String)} for processing
+     * individual search queries.
+     * Throws ImportException on error accessing or processing the input search query file.
+     *
+     * @param filename                file with CSV search criteria for Content items in the product catalog
+     * @throws ImportException        thrown when encountering non-parse related exceptions in the file import process
      * @throws ParseException         thrown when encountering any issues parsing the input file related to the format of the file contents
      */
-    /*
-    public static void importContentFile(String guid, String filename) throws ImportException, ParseException {
+    public static void executeQueryFilename(String filename) throws QueryEngineException, ImportException, ParseException {
         int lineNumber = 0;  // keep track of what lineNumber we're reading in from the input file for exception handling
         String line = null;  // store the text on each line as it's processed
-        IProductAPI productAPI = ProductAPI.getInstance();  // reference to ProductAPI for adding the content items
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             List<Content> contentItemsToAdd = new ArrayList<Content>();
-
             while ((line = reader.readLine()) != null) {
                 lineNumber++;
 
@@ -59,208 +288,8 @@ public class SearchEngine {
                 // (preceeded by hash character); if first character is a hash, skip to next line
                 if (line.substring(0,1).matches("#")) { continue; }
 
-                String[] cleanedColumns = Importer.parseCSVLine(line, ",");
-
-                // can be 12 or 13 columns long (13 contains the filesize for applications)
-                if (cleanedColumns != null && cleanedColumns.length >= 12 && cleanedColumns.length <= 13) {
-                    // set up empty values for the content that will be parsed out from the line
-                    String contentName = "";
-                    String contentDescription = "";
-                    String contentAuthorName = "";
-                    String contentImageURL = "";
-                    int contentRating = 0;
-                    int contentFilesizeBytes = 0;
-                    int contentPixelWidth = 0;
-                    int contentPixelHeight = 0;
-                    float contentPrice = 0;
-                    float contentDurationInSeconds = 0;
-                    Set<String> contentCategories = new HashSet<String>(){};
-                    Set<Device> contentDevices = new HashSet<Device>(){};
-                    Set<Country> contentCountries = new HashSet<Country>(){};
-                    Set<String> contentSupportedLanguages = new HashSet<String>(){};
-                    ContentType contentType = null;
-
-                    List<ContentType> allContentTypes = Arrays.asList( ContentType.values());
-                    String upperCaseContentType = cleanedColumns[0].toUpperCase();
-
-                    // get the content type
-                    if (cleanedColumns[0] != null && allContentTypes.contains(ContentType.valueOf(upperCaseContentType)) ) {
-                        contentType = ContentType.valueOf(cleanedColumns[0].toUpperCase());
-                    }
-                    // get the content name
-                    if (cleanedColumns[2] != null && cleanedColumns[2].length() > 0) {
-                        contentName = cleanedColumns[2].trim();
-                    }
-                    // get the content description
-                    if (cleanedColumns[3] != null && cleanedColumns[3].length() > 0) {
-                        contentDescription = cleanedColumns[3].trim();
-                    }
-                    // get the content author name
-                    if (cleanedColumns[4] != null && cleanedColumns[4].length() > 0) {
-                        contentAuthorName = cleanedColumns[4].trim();
-                    }
-                    // get the content rating
-                    if (cleanedColumns[5] != null && cleanedColumns[5].length() == 1) {
-                        try {
-                            contentRating = Integer.parseInt(cleanedColumns[5]);
-                        }
-                        catch (NumberFormatException nfe) {
-                            throw new ParseException("Import Content line contains invalid data for the content rating ["+cleanedColumns[5].toString()+"].",
-                                                        line,
-                                                        lineNumber,
-                                                        filename,
-                                                        null);
-                        }
-                    }
-                    // get the content categories
-                    if (cleanedColumns[6] != null && cleanedColumns[6].length() > 0) {
-                        // need to parse out the categories by splitting on the pipe character
-                        String[] parsedCategories = Importer.parseCSVLine(cleanedColumns[6], "\\|");
-                        if (parsedCategories != null && parsedCategories.length > 0) {
-                            contentCategories.addAll(Arrays.asList(parsedCategories));
-                        }
-                    }
-                    // get the content countries
-                    if (cleanedColumns[7] != null && cleanedColumns[7].length() > 0) {
-                        // need to parse out the countries by splitting on the pipe character
-                        String[] parsedCountries = Importer.parseCSVLine(cleanedColumns[7], "\\|");
-                        if (parsedCountries != null && parsedCountries.length > 0) {
-                            for (String countryCode : parsedCountries) {
-                                Country foundCountry = productAPI.getCountryByCode(countryCode);
-                                if (foundCountry != null) {
-                                    contentCountries.add(foundCountry);
-                                }
-                            }
-                        }
-                    }
-                    // get the content supported devices
-                    if (cleanedColumns[8] != null && cleanedColumns[8].length() > 0) {
-                        // need to parse out the devices by splitting on the pipe character
-                        String[] parsedDevices = Importer.parseCSVLine(cleanedColumns[8], "\\|");
-                        if (parsedDevices != null && parsedDevices.length > 0) {
-                            for (String deviceID : parsedDevices) {
-                                Device foundDevice = productAPI.getDeviceByID(deviceID);
-                                if (foundDevice != null) {
-                                    contentDevices.add(foundDevice);
-                                }
-                            }
-                        }
-                    }
-                    // get the content price (in BitCoins)
-                    if (cleanedColumns[9] != null && cleanedColumns[9].length() > 0) {
-                        try {
-                            contentPrice = Float.parseFloat(cleanedColumns[9]);
-                        }
-                        catch (NumberFormatException nfe) {
-                            throw new ParseException("Import Content line contains invalid data for the content price ["+cleanedColumns[9].toString()+"].",
-                                                        line,
-                                                        lineNumber,
-                                                        filename,
-                                                        null);
-                        }
-                    }
-                    // get the content supported languages
-                    if (cleanedColumns[10] != null && cleanedColumns[10].length() > 0) {
-                        // need to parse out the supported languages by splitting on the pipe character
-                        String[] parsedLanguages = Importer.parseCSVLine(cleanedColumns[10], "\\|");
-                        if (parsedLanguages != null && parsedLanguages.length > 0) {
-                            contentSupportedLanguages.addAll(Arrays.asList(parsedLanguages));
-                        }
-                    }
-                    // get the content image URL
-                    if (cleanedColumns[11] != null && cleanedColumns[11].length() > 0) {
-                        contentImageURL = cleanedColumns[11].trim();
-                    }
-                    // OPTIONAL: if there is a 13th item in the array, it is the application file size
-                    if (cleanedColumns.length >= 13 && cleanedColumns[12] != null && cleanedColumns[12].length() > 0) {
-                        try {
-                            contentFilesizeBytes = Integer.parseInt(cleanedColumns[12]);
-                        }
-                        catch (NumberFormatException nfe) {
-                            throw new ParseException("Import Content line contains invalid data for the content application filesize ["+cleanedColumns[12].toString()+"].",
-                                                        line,
-                                                        lineNumber,
-                                                        filename,
-                                                        null);
-                        }
-                    }
-                    // OPTIONAL: if there is a 14th item in the array, it is the ringtone duration in seconds
-                    if (cleanedColumns.length >= 14 && cleanedColumns[13] != null && cleanedColumns[13].length() > 0) {
-                        try {
-                            contentDurationInSeconds = Float.parseFloat(cleanedColumns[13]);
-                        }
-                        catch (NumberFormatException nfe) {
-                            throw new ParseException("Import Content line contains invalid data for the content ringtone duration in seconds ["+cleanedColumns[13].toString()+"].",
-                                                        line,
-                                                        lineNumber,
-                                                        filename,
-                                                        null);
-                        }
-                    }
-                    // OPTIONAL: if there are 15th and 16th columns in the array, it is the wallpaper pixel width and pixel height
-                    if (cleanedColumns.length >= 16 &&
-                            cleanedColumns[14] != null &&
-                            cleanedColumns[15] != null &&
-                            cleanedColumns[14].length() > 0 &&
-                            cleanedColumns[15].length() > 0
-                    ) {
-                        try {
-                            contentPixelWidth = Integer.parseInt(cleanedColumns[14]);
-                            contentPixelHeight = Integer.parseInt(cleanedColumns[15]);
-                        }
-                        catch (NumberFormatException nfe) {
-                            throw new ParseException("Import Content line contains invalid data for the content wallpaper pixel width and height ["+cleanedColumns[14].toString()+","+cleanedColumns[15].toString()+"].",
-                                                        line,
-                                                        lineNumber,
-                                                        filename,
-                                                        null);
-                        }
-                    }
-
-                    // try to create the content
-                    if (contentType == null) {
-                        throw new ParseException("Import Content line contains invalid data for the content type ["+cleanedColumns[0].toString()+"].",
-                                                    line,
-                                                    lineNumber,
-                                                    filename,
-                                                    null);
-                    }
-
-
-                    switch (contentType) {
-                        case APPLICATION :
-                            Content application = new Application(contentName, contentDescription, contentAuthorName,
-                                                              contentRating, contentCategories, contentDevices,
-                                                              contentPrice, contentCountries, contentSupportedLanguages,
-                                                              contentImageURL, contentType, contentFilesizeBytes);
-                            contentItemsToAdd.add(application);
-                            break;
-                        case RINGTONE :
-                            Content ringtone = new Ringtone(contentName, contentDescription, contentAuthorName,
-                                                              contentRating, contentCategories, contentDevices,
-                                                              contentPrice, contentCountries, contentSupportedLanguages,
-                                                              contentImageURL, contentType, contentDurationInSeconds);
-                            contentItemsToAdd.add(ringtone);
-                            break;
-                        case WALLPAPER :
-                            Content wallpaper = new Wallpaper(contentName, contentDescription, contentAuthorName,
-                                                              contentRating, contentCategories, contentDevices,
-                                                              contentPrice, contentCountries, contentSupportedLanguages,
-                                                              contentImageURL, contentType, 1920, 1080);
-                            contentItemsToAdd.add(wallpaper);
-                            break;
-                    }
-                } else {
-                    throw new ParseException("Import Content line contains invalid data for some of the content attributes.",
-                                                line,
-                                                lineNumber,
-                                                filename,
-                                                null);
-                }
-            }
-            // add the content items to the Product catalog
-            if (contentItemsToAdd.size() > 0) {
-                productAPI.importContent(guid, contentItemsToAdd);
+                // delegate individual query lines to the executeQuery method
+                SearchEngine.executeQuery(line);
             }
         }
         catch (FileNotFoundException fnfe) {
@@ -272,66 +301,6 @@ public class SearchEngine {
         catch (Exception e) {
             throw new ImportException("Caught a generic Exception when attempting to read file ["+filename+"]", lineNumber, filename, e);
         }
-    }
-    */
-
-
-    public static void executeQuery(String queryLine) {
-
-    }
-
-
-    /*
-# catgory list, text search, minimum rating, max price, language list, country code, device id, content type list
-
-# search for “Ferrari” in name or description
-, Ferrari, , , , , ,
-
-# search for all content with a minimum rating of 4 and a price of 0 or less (i.e. free)
-, , 4, 0, , , ,
-    */
-
-
-    /**
-     * Public method for importing search queries against the {@link cscie97.asn2.ecommerce.product.ProductAPI} for
-     * {@link cscie97.asn2.ecommerce.product.Content} items.  Content may be searched for using any available
-     * properties of the content (including content type specific attributes, such as
-     * {@link cscie97.asn2.ecommerce.product.Application#fileSizeBytes},
-     * {@link cscie97.asn2.ecommerce.product.Ringtone#durationInSeconds}, etc.).
-
-     *
-     *
-     *
-     * {@link cscie97.asn2.ecommerce.product.Content} items into the product catalog.
-     * Note that any {@link cscie97.asn2.ecommerce.product.Device} or {@link cscie97.asn2.ecommerce.product.Country}
-     * items referenced by the individual content items to add must already exist in the Product catalog first, or the
-     * import of that content item will not work.  Depending on the content type of each item in the input file, will
-     * conditionally add the content items to the product catalog as either an
-     * {@link cscie97.asn2.ecommerce.product.Application},
-     * {@link cscie97.asn2.ecommerce.product.Ringtone}, or {@link cscie97.asn2.ecommerce.product.Wallpaper}.
-     * Checks for valid input file name.
-     * Throws ImportException on error accessing or processing the input Content File.
-     *
-     * @param filename                file with content items to load into the product catalog
-     * @throws ImportException        thrown when encountering non-parse related exceptions in the import process
-     * @throws ParseException         thrown when encountering any issues parsing the input file related to the format of the file contents
-     */
-    public static void executeQueryFilename(String filename) throws QueryEngineException, ImportException, ParseException {
-
-        Set<String> categories = new HashSet<String>();
-        Set<String> supportedLanguages = new HashSet<String>();
-        Country country = new Country("","","");
-        Device device = new Device("","","");
-        Set<ContentType> contentTypes = new HashSet<ContentType>();
-
-        ContentSearch contentSearch = new ContentSearch(categories, "", 0, 0, supportedLanguages, country, device, contentTypes);
-
-        //List<ContentSearch> searchList = new ArrayList<ContentSearch>() { Arrays.asList<ContentSearch>(contentSearch) };
-        List<ContentSearch> searchList = new ArrayList<ContentSearch>();
-        searchList.add(contentSearch);
-
-        //return searchList;
-        //ContentSearch(categories, "", 0, 0, supportedLanguages, country, device, contentTypes);
     }
 
 }

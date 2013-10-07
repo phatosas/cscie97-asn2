@@ -1,15 +1,14 @@
 package cscie97.asn2.ecommerce.product.exception;
 
 /**
- * Exception for problems that the {@link cscie97.asn1.knowledge.engine.KnowledgeGraph} may run into during typical
- * operation such as importing Triples, or executing queries.
+ * Exception for problems that the {@link cscie97.asn2.ecommerce.product.Importer} or
+ * {@link cscie97.asn2.ecommerce.product.SearchEngine} may run into during typical operation such as importing
+ * Countries, Devices, Content, or executing queries.
  *
  * @author David Killeffer <rayden7@gmail.com>
  * @version 1.0
- * @see cscie97.asn1.knowledge.engine.KnowledgeGraph
- * @see cscie97.asn1.knowledge.engine.Triple
- * @see cscie97.asn1.knowledge.engine.Importer
- * @see cscie97.asn1.knowledge.engine.QueryEngine
+ * @see cscie97.asn2.ecommerce.product.Importer
+ * @see cscie97.asn2.ecommerce.product.SearchEngine
  */
 public class ParseException extends Exception {
 
@@ -35,31 +34,30 @@ public class ParseException extends Exception {
 
 
     /**
-     * Wraps a more generic exception that may have been thrown in the {@link cscie97.asn1.knowledge.engine.Importer},
-     * {@link cscie97.asn1.knowledge.engine.QueryEngine}, or {@link cscie97.asn1.knowledge.engine.KnowledgeGraph}
-     * classes.  Arguments contain more specific details about the exception to simplify debugging.
+     * Wraps a more generic exception that may have been thrown in the {@link cscie97.asn2.ecommerce.product.Importer}
+     * or {@link cscie97.asn2.ecommerce.product.SearchEngine} classes.  Arguments contain more specific details about
+     * the exception to simplify debugging.
      *
      * @param line      the string value of the line that caused the exception
      * @param cause     the wrapped lower-level exception that triggered this exception's creation; may be null
      */
     public ParseException (String msg, String line, Throwable cause) {
         super("ParseException occurred on line [" + line + "]", cause);
-
         this.lineWhereFailed = line;
         this.originalCause = cause;
     }
 
     /**
-     * Wraps a more generic exception that may have been thrown in the {@link cscie97.asn1.knowledge.engine.Importer},
-     * {@link cscie97.asn1.knowledge.engine.QueryEngine}, or {@link cscie97.asn1.knowledge.engine.KnowledgeGraph}
-     * classes.  Arguments contain more specific details about the exception to simplify debugging.
+     * Wraps a more generic exception that may have been thrown in the {@link cscie97.asn2.ecommerce.product.Importer}
+     * or {@link cscie97.asn2.ecommerce.product.SearchEngine} classes.  Arguments contain more specific details about
+     * the exception to simplify debugging.
      *
+     * @param msg       the exception message from the throwing cause
      * @param line      the string value of the line that caused the exception
      * @param cause     the wrapped lower-level exception that triggered this exception's creation; may be null
      */
     public ParseException (String msg, String line, int lineNum, String filename, Throwable cause) {
         super("ParseException occurred on line [" + line + "] of file [" + filename + "] at line number [" + lineNum + "]", cause);
-
         this.lineWhereFailed = line;
         this.lineIndexWhereFailed = lineNum;
         this.filename = filename;

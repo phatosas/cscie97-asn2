@@ -78,7 +78,7 @@ import java.util.Set;
  *     <li>wallpaper pixel width (integer) [OPTIONAL, only for {@link cscie97.asn2.ecommerce.product.Wallpaper} type content)</li>
  *     <li>wallpaper pixel height (integer) [OPTIONAL, only for {@link cscie97.asn2.ecommerce.product.Wallpaper} type content)</li>
  * </ol>
- * For example, here is a sample of what a valid device CSV input file might look like (device names that have
+ * For example, here is a sample of what a valid content CSV input file might look like (device names that have
  * commas in them may be escaped by putting a backslash in front of the comma):
  * <pre>
  * #content_type, content_id, content_name, content_description, author, rating, categories, export_countries,supported_devices,price, supported_languages, image_url, application_size
@@ -100,14 +100,15 @@ import java.util.Set;
 public class Importer {
 
     /**
-     * Private method to parse a line from a CSV input file and return an array of strings.  Splits up the string
-     * based on the supplied separator, and ignores any backslash-escaped separator.
+     * Protected method to parse a line from a CSV input file and return an array of strings.  Splits up the string
+     * based on the supplied separator, and ignores any backslash-escaped separator.  Access level set to "protected"
+     * so that the {@link cscie97.asn2.ecommerce.product.SearchEngine} class may also use this method.
      *
      * @param line       the string to parse out and split into an array based on separator
      * @param separator  the character to use for splitting out the line
      * @return           an array of strings that were split by the separator
      */
-    private static String[] parseCSVLine(String line, String separator) {
+    protected static String[] parseCSVLine(String line, String separator) {
         // need to do a negative lookbehind to properly escape the backslash-preceeding characters that come
         // immediately prior to the passed separator in input strings (help from:
         // http://stackoverflow.com/questions/820172/how-to-split-a-comma-separated-string-while-ignoring-escaped-commas)
@@ -319,7 +320,7 @@ public class Importer {
                                                         line,
                                                         lineNumber,
                                                         filename,
-                                                        null);
+                                                        nfe);
                         }
                     }
                     // get the content categories
@@ -366,7 +367,7 @@ public class Importer {
                                                         line,
                                                         lineNumber,
                                                         filename,
-                                                        null);
+                                                        nfe);
                         }
                     }
                     // get the content supported languages
@@ -391,7 +392,7 @@ public class Importer {
                                                         line,
                                                         lineNumber,
                                                         filename,
-                                                        null);
+                                                        nfe);
                         }
                     }
                     // OPTIONAL: if there is a 14th item in the array, it is the ringtone duration in seconds
@@ -404,7 +405,7 @@ public class Importer {
                                                         line,
                                                         lineNumber,
                                                         filename,
-                                                        null);
+                                                        nfe);
                         }
                     }
                     // OPTIONAL: if there are 15th and 16th columns in the array, it is the wallpaper pixel width and pixel height
@@ -423,7 +424,7 @@ public class Importer {
                                                         line,
                                                         lineNumber,
                                                         filename,
-                                                        null);
+                                                        nfe);
                         }
                     }
 

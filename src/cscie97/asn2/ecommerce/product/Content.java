@@ -378,20 +378,20 @@ public abstract class Content {
      */
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("CONTENT ITEM:\n:") );
-        sb.append(String.format("\tTYPE: [%s]\n:", this.getContentType()));
-        sb.append(String.format("\tID: [%s]\n:", this.getID()));
-        sb.append(String.format("\tNAME: [%s]\n:", this.getName()));
-        sb.append(String.format("\tDESCRIPTION: [%s]\n:", this.getDescription()));
-        sb.append(String.format("\tAUTHOR NAME: [%s]\n:", this.getAuthorName()));
-        sb.append(String.format("\tRATING: [%d]\n:", this.getRating()));
-        sb.append(String.format("\tCATEGORIES: [%s]\n:", this.getCategories().toString() ));
-        sb.append(String.format("\tDEVICES: [%s]\n:", this.getCompatibleDevices().toString()));
-        sb.append(String.format("\tPRICE: [%f]\n:", this.getPrice()));
-        sb.append(String.format("\tALLOWED COUNTRIES: [%s]\n:", this.getAllowedInCountries().toString()));
-        sb.append(String.format("\tIMAGE URL: [%s]\n:", this.getImageURL()));
-        sb.append(String.format("\tSUPPORTED LANGUAGES: [%s]\n:", this.getSupportedLanguages().toString()));
-        sb.append(String.format("\tALLOWED COUNTRIES: [%s]\n:", this.getAllowedInCountries().toString()));
+        sb.append(String.format("CONTENT ITEM:\n") );
+        sb.append(String.format("\tTYPE: [%s]\n", this.getContentType()));
+        sb.append(String.format("\tID: [%s]\n", this.getID()));
+        sb.append(String.format("\tNAME: [%s]\n", this.getName()));
+        sb.append(String.format("\tDESCRIPTION: [%s]\n", this.getDescription()));
+        sb.append(String.format("\tAUTHOR NAME: [%s]\n", this.getAuthorName()));
+        sb.append(String.format("\tRATING: [%d]\n", this.getRating()));
+        sb.append(String.format("\tCATEGORIES: [%s]\n", this.getCategories().toString() ));
+        sb.append(String.format("\tDEVICES: [%s]\n", this.getCompatibleDevices().toString()));
+        sb.append(String.format("\tPRICE: [%f]\n", this.getPrice()));
+        sb.append(String.format("\tALLOWED COUNTRIES: [%s]\n", this.getAllowedInCountries().toString()));
+        sb.append(String.format("\tIMAGE URL: [%s]\n", this.getImageURL()));
+        sb.append(String.format("\tSUPPORTED LANGUAGES: [%s]\n", this.getSupportedLanguages().toString()));
+        sb.append(String.format("\tALLOWED COUNTRIES: [%s]\n", this.getAllowedInCountries().toString()));
         return sb.toString();
     }
 

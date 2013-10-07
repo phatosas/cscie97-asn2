@@ -25,35 +25,86 @@ import java.util.Set;
  */
 public class ContentSearch {
 
+    /**
+     * Save the original string that was used to create this content search object
+     */
+    private String rawQuery = "";
+
+    /**
+     * Content categories to search content for
+     */
     private Set<String> categories = new HashSet<String>(){ };
 
+    /**
+     * Text to use for searching content items for; will search on content name, description, and author name
+     */
     private String textSearch = "";
 
+    /**
+     * Minimum rating to use when searching for content
+     */
     private int minimumRating = 0;
 
-    private float maximumPrice = new Float(Float.MAX_VALUE);
+    /**
+     * Maximum price to use when searching for content; if the prize is zero, all content will match
+     */
+    private float maximumPrice = 0;
 
+    /**
+     * All the supported language codes to match on
+     */
     private Set<String> supportedLanguages = new HashSet<String>(){ };
 
-    private Country country = null;
+    /**
+     * All the allowed countries where the searched content can be downloaded
+     */
+    private Set<Country> countries = new HashSet<Country>(){ };
 
-    private Device device = null;
+    /**
+     *
+     */
+    private Set<Device> devices = new HashSet<Device>(){ };
 
     private Set<ContentType> contentTypes = new HashSet<ContentType>(){ };
 
     public ContentSearch() { }
 
-    public ContentSearch(Set<String> categories, String textSearch, int minimumRating, float maximumPrice,
-                         Set<String> supportedLanguages, Country country, Device device, Set<ContentType> contentTypes
+    /**
+     * Class constructor.  ContentSearch objects are created by the {@link cscie97.asn2.ecommerce.product.SearchEngine}
+     * to capture the search criteria that is from the input CSV files, and then the ContentSearch objects are passed
+     * to the Singleton instance of the {@link cscie97.asn2.ecommerce.product.ProductAPI} for executing the actual
+     * content search.
+     *
+     * @param rawQuery
+     * @param categories
+     * @param textSearch
+     * @param minimumRating
+     * @param maximumPrice
+     * @param supportedLanguages
+     * @param countries
+     * @param devices
+     * @param contentTypes
+     */
+    public ContentSearch(String rawQuery, Set<String> categories, String textSearch, int minimumRating, float maximumPrice,
+                         Set<String> supportedLanguages, Set<Country> countries, Set<Device> devices, Set<ContentType> contentTypes
     ) {
+        this.rawQuery = rawQuery;
         this.categories = categories;
         this.textSearch = textSearch;
         this.minimumRating = minimumRating;
         this.maximumPrice = maximumPrice;
         this.supportedLanguages = supportedLanguages;
-        this.country = country;
-        this.device = device;
+        this.countries = countries;
+        this.devices = devices;
         this.contentTypes = contentTypes;
+    }
+
+    public String getRawQuery() {
+        return rawQuery;
+    }
+
+    public void setRawQuery(String rawQuery) {
+        this.rawQuery = rawQuery;
     }
 
     public Set<String> getCategories() {
@@ -96,20 +147,20 @@ public class ContentSearch {
         this.supportedLanguages = supportedLanguages;
     }
 
-    public Country getCountry() {
-        return country;
+    public Set<Country> getCountries() {
+        return countries;
     }
 
-    public void setCountry(Country country) {
-        this.country = country;
+    public void setCountries(Set<Country> country) {
+        this.countries = country;
     }
 
-    public Device getDevice() {
-        return device;
+    public Set<Device> getDevices() {
+        return devices;
     }
 
-    public void setDevice(Device device) {
-        this.device = device;
+    public void setDevices(Set<Device> devices) {
+        this.devices = devices;
     }
 
     public Set<ContentType> getContentTypes() {
@@ -118,6 +169,27 @@ public class ContentSearch {
 
     public void setContentTypes(Set<ContentType> contentTypes) {
         this.contentTypes = contentTypes;
+    }
+
+    /**
+     * Returns a string representation of the content search; useful for debugging.
+     *
+     * @return  string representation of the content search
+     */
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("CONTENT SEARCH: [") );
+        sb.append(String.format(" RAW QUERY: [%s]", this.getRawQuery()));
+        sb.append(String.format(" CATEGORIES: [%s]", this.getCategories().toString()));
+        sb.append(String.format(" TEXT: [%s]", this.getTextSearch()));
+        sb.append(String.format(" MINIMUM RATING: [%d]", this.getMinimumRating()));
+        sb.append(String.format(" MAXIMUM PRICE: [%f]", this.getMaximumPrice()));
+        sb.append(String.format(" SUPPORTED LANGUAGES: [%s]", this.getSupportedLanguages().toString()));
+        sb.append(String.format(" ALLOWED COUNTRIES: [%s]", this.getCountries().toString()));
+        sb.append(String.format(" DEVICES: [%s]", this.getDevices().toString()));
+        sb.append(String.format(" CONTENT TYPES: [%s]", this.getContentTypes().toString()));
+        sb.append("]");
+        return sb.toString();
     }
 
 }
