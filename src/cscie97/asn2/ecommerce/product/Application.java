@@ -41,7 +41,7 @@ public class Application extends Content {
      *
      * @param fileSizeBytes  how many bytes large the application is
      */
-    public void setFileSizeBytes(int fileSizeBytes) {
+    protected void setFileSizeBytes(int fileSizeBytes) {
         this.fileSizeBytes = fileSizeBytes;
     }
 

@@ -41,7 +41,7 @@ public class Ringtone extends Content {
      *
      * @param durationInSeconds  how long the ringtone is when played (in seconds)
      */
-    public void setDurationInSeconds(float durationInSeconds) {
+    protected void setDurationInSeconds(float durationInSeconds) {
         this.durationInSeconds = durationInSeconds;
     }
 

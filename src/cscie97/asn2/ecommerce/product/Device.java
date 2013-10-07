@@ -58,7 +58,7 @@ public class Device {
      *
      * @param id  identifier for the device
      */
-    public void setId(String id) {
+    protected void setId(String id) {
         this.id = id;
     }
 
@@ -76,7 +76,7 @@ public class Device {
      *
      * @param name the name to use for the device
      */
-    public void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
     }
 
@@ -94,7 +94,7 @@ public class Device {
      *
      * @param manufacturer  name of the manufacturer responsible for building the device
      */
-    public void setManufacturer(String manufacturer) {
+    protected void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
     }
 

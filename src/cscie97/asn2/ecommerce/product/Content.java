@@ -112,7 +112,7 @@ public abstract class Content {
      *
      * @param id  the unique content ID to use for the content item
      */
-    public void setID(String id) {
+    protected void setID(String id) {
         this.id = id;
     }
 
@@ -130,7 +130,7 @@ public abstract class Content {
      *
      * @param name  the name to use for the content item
      */
-    public void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
     }
 
@@ -148,7 +148,7 @@ public abstract class Content {
      *
      * @param description  the new content item description to use
      */
-    public void setDescription(String description) {
+    protected void setDescription(String description) {
         this.description = description;
     }
 
@@ -166,7 +166,7 @@ public abstract class Content {
      *
      * @param authorName  the author's name to use for the content item
      */
-    public void setAuthorName(String authorName) {
+    protected void setAuthorName(String authorName) {
         this.authorName = authorName;
     }
 
@@ -184,7 +184,7 @@ public abstract class Content {
      *
      * @param rating  new rating for the content item
      */
-    public void setRating(int rating) {
+    protected void setRating(int rating) {
         this.rating = rating;
     }
 
@@ -202,7 +202,7 @@ public abstract class Content {
      *
      * @param categories  the list of categories the content item should belong to
      */
-    public void setCategories(Set<String> categories) {
+    protected void setCategories(Set<String> categories) {
         this.categories = categories;
     }
 
@@ -220,7 +220,7 @@ public abstract class Content {
      *
      * @param compatibleDevices  all the {@link cscie97.asn2.ecommerce.product.Device} that the content item is compatible with
      */
-    public void setCompatibleDevices(Set<Device> compatibleDevices) {
+    protected void setCompatibleDevices(Set<Device> compatibleDevices) {
         this.compatibleDevices = compatibleDevices;
     }
 
@@ -238,7 +238,7 @@ public abstract class Content {
      *
      * @param price  current price for the content in BitCoins
      */
-    public void setPrice(float price) {
+    protected void setPrice(float price) {
         this.price = price;
     }
 
@@ -256,7 +256,7 @@ public abstract class Content {
      *
      * @param allowedInCountries  the list of {@link cscie97.asn2.ecommerce.product.Country} where the content is legal to own and use
      */
-    public void setAllowedInCountries(Set<Country> allowedInCountries) {
+    protected void setAllowedInCountries(Set<Country> allowedInCountries) {
         this.allowedInCountries = allowedInCountries;
     }
 
@@ -274,7 +274,7 @@ public abstract class Content {
      *
      * @param supportedLanguages  list of strings 5-characters long that represents the supported languages by the content
      */
-    public void setSupportedLanguages(Set<String> supportedLanguages) {
+    protected void setSupportedLanguages(Set<String> supportedLanguages) {
         this.supportedLanguages = supportedLanguages;
     }
 
@@ -292,7 +292,7 @@ public abstract class Content {
      *
      * @param imageURL  the URL for a publicly available image of the content
      */
-    public void setImageURL(String imageURL) {
+    protected void setImageURL(String imageURL) {
         this.imageURL = imageURL;
     }
 
@@ -310,7 +310,7 @@ public abstract class Content {
      *
      * @param contentType  the {@link cscie97.asn2.ecommerce.product.ContentType} that best describes the item
      */
-    public void setContentType(ContentType contentType) {
+    protected void setContentType(ContentType contentType) {
         this.contentType = contentType;
     }
 

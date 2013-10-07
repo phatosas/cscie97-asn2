@@ -34,7 +34,7 @@ import java.util.Arrays;
  * For example, here is a sample of what a valid content item query CSV file might look like:
  * <pre>
  * # catgory_list, text_search, minimum_rating, max_price, language_list, country_code, device_id, content_type_list
- * # search for “Ferrari” in name or description
+ * # search for "Ferrari" in name or description
  *  , Ferrari, , , , , ,
  * # search for all content with a minimum rating of 4 and a price of 0 or less (i.e. free)
  *  , , 4, 0, , , ,
@@ -45,7 +45,7 @@ import java.util.Arrays;
  * @author David Killeffer <rayden7@gmail.com>
  * @version 1.0
  * @see IProductAPI
- * @See ProductAPI
+ * @see ProductAPI
  * @see Content
  * @see Importer
  * @see Application

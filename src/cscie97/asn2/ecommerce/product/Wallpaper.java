@@ -46,7 +46,7 @@ public class Wallpaper extends Content {
      *
      * @param pixelWidth  how many pixels wide the wallpaper should be
      */
-    public void setPixelWidth(int pixelWidth) {
+    protected void setPixelWidth(int pixelWidth) {
         this.pixelWidth = pixelWidth;
     }
 
@@ -64,7 +64,7 @@ public class Wallpaper extends Content {
      *
      * @param pixelHeight  how many pixels in height the wallpaper should be
      */
-    public void setPixelheight(int pixelHeight) {
+    protected void setPixelheight(int pixelHeight) {
         this.pixelHeight = pixelHeight;
     }
 

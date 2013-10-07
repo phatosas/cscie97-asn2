@@ -61,7 +61,7 @@ public class Country {
      *
      * @param code  2-character country code
      */
-    public void setCode(String code) {
+    protected void setCode(String code) {
         this.code = code;
     }
 
@@ -78,7 +78,7 @@ public class Country {
      *
      * @param name  the name of the country
      */
-    public void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
     }
 
@@ -91,7 +91,7 @@ public class Country {
         return exportStatus;
     }
 
-    public void setExportStatus(String exportStatus) {
+    protected void setExportStatus(String exportStatus) {
         this.exportStatus = exportStatus;
     }
 

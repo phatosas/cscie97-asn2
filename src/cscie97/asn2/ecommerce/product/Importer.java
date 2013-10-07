@@ -90,7 +90,7 @@ import java.util.Set;
  * @author David Killeffer <rayden7@gmail.com>
  * @version 1.0
  * @see IProductAPI
- * @See ProductAPI
+ * @see ProductAPI
  * @see Content
  * @see Device
  * @see Application
