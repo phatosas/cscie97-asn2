@@ -1,0 +1,13 @@
+
+
+
+// WORKED to build app
+javac -cp ".:commons-collections4-4.0-alpha1.jar:commons-lang3-3.1.jar" cscie97/asn2/ecommerce/product/*.java cscie97/asn2/ecommerce/product/exception/*.java cscie97/asn2/test/*.java
+
+// WORKED to run app
+java -cp ".:commons-collections4-4.0-alpha1.jar:commons-lang3-3.1.jar" cscie97.asn2.test.TestDriver countries.csv devices.csv products.csv queries.csv
+
+
+
+
+
