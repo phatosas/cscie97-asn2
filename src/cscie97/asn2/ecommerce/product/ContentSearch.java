@@ -41,14 +41,20 @@ public class ContentSearch {
     private String textSearch = "";
 
     /**
-     * Minimum rating to use when searching for content
+     * Minimum rating to use when searching for content.  NOTE: must use a default value that is outside the range of
+     * the valid values for content, and since this is a "minimum" search comparison value, it must be higher than
+     * the top end of the rating range, so set it to 6 (otherwise the search will match all items since this
+     * search value will be set to zero)
      */
-    private int minimumRating = 0;
+    private int minimumRating = 6;
 
     /**
-     * Maximum price to use when searching for content; if the prize is zero, all content will match
+     * Maximum price to use when searching for content.  NOTE: must use a default value that is lower than the
+     * minimum allowed price for content (which is zero - e.g., "free"), otherwise the search would match all content
+     * since by defaulting to zero would mean everything matches on the price attribute.  Default to -1 and require
+     * that the search be set to a higher value.
      */
-    private float maximumPrice = 0;
+    private float maximumPrice = -1;
 
     /**
      * All the supported language codes to match on

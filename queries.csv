@@ -5,3 +5,6 @@
 
 # search for all content with a minimum rating of 4 and a price of 0 or less (i.e. free)
 , , 4, 0, , , , 
+
+# search for all content that can be used on iphone_6 or fake_phone_not_real
+, , , , , , iphone_6|fake_phone_not_real, ,

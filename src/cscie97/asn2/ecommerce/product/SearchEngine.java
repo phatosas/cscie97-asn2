@@ -13,7 +13,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 
-
 /**
  * Provides public static methods for querying the {@link cscie97.asn2.ecommerce.product.ProductAPI} for
  * {@link cscie97.asn2.ecommerce.product.Content} items.  Delegates the actual search logic to the
@@ -88,37 +87,21 @@ public class SearchEngine {
         ContentSearch searchCriteria = new ContentSearch();
         searchCriteria.setRawQuery(queryLine);
 
-        /*
-        // parsed search criteria are valid; set up empty values for search criteria that will be parsed out from the line
-        Set<String> searchContentCategories = new HashSet<String>(){};
-        String searchContentString = "";
-        int searchContentMinimumRating = 0;  // default to search for all content
-        float searchContentMaximumPrice = Float.MAX_VALUE;  // default to use the lowest price possible
-        Set<String> searchContentSupportedLanguages = new HashSet<String>(){};
-        Set<Country> searchContentCountries = new HashSet<Country>(){};
-        Set<Device> searchContentDevices = new HashSet<Device>(){};
-        Set<ContentType> searchContentTypes = new HashSet<ContentType>(){};
-        */
-
-
         // get the search content categories
         if (cleanedColumns[0] != null && cleanedColumns[0].length() > 0) {
             // need to parse out the search categories by splitting on the pipe character
             String[] parsedCategories = Importer.parseCSVLine(cleanedColumns[0], "\\|");
             if (parsedCategories != null && parsedCategories.length > 0) {
-                //searchContentCategories.addAll(Arrays.asList(parsedCategories));
                 searchCriteria.setCategories(new HashSet<String>(Arrays.asList(parsedCategories)));
             }
         }
         // get the search content text string
         if (cleanedColumns[1] != null && cleanedColumns[1].length() > 0) {
-            //searchContentString = cleanedColumns[1].trim();
             searchCriteria.setTextSearch(cleanedColumns[1].trim());
         }
         // get the search content minimum rating
         if (cleanedColumns[2] != null && cleanedColumns[2].length() == 1) {
             try {
-                //searchContentMinimumRating = Integer.parseInt(cleanedColumns[2]);
                 searchCriteria.setMinimumRating(Integer.parseInt(cleanedColumns[2]));
             }
             catch (NumberFormatException nfe) {
@@ -132,7 +115,6 @@ public class SearchEngine {
         // get the search content maximum price
         if (cleanedColumns[3] != null && cleanedColumns[3].length() == 1) {
             try {
-                //searchContentMaximumPrice = Float.parseFloat(cleanedColumns[3]);
                 searchCriteria.setMaximumPrice(Float.parseFloat(cleanedColumns[3]));
             }
             catch (NumberFormatException nfe) {
@@ -148,7 +130,6 @@ public class SearchEngine {
             // need to parse out the supported languages by splitting on the pipe character
             String[] parsedLanguages = Importer.parseCSVLine(cleanedColumns[4], "\\|");
             if (parsedLanguages != null && parsedLanguages.length > 0) {
-                //searchContentSupportedLanguages.addAll(Arrays.asList(parsedLanguages));
                 searchCriteria.setSupportedLanguages(new HashSet<String>(Arrays.asList(parsedLanguages)));
             }
         }
@@ -162,7 +143,6 @@ public class SearchEngine {
                     Country foundCountry = productAPI.getCountryByCode(countryCode);
                     if (foundCountry != null) {
                         foundCountries.add(foundCountry);
-                        //searchContentCountries.add(foundCountry);
                     }
                 }
                 searchCriteria.setCountries(foundCountries);
@@ -177,7 +157,6 @@ public class SearchEngine {
                 for (String deviceID : parsedDevices) {
                     Device foundDevice = productAPI.getDeviceByID(deviceID);
                     if (foundDevice != null) {
-                        //searchContentDevices.add(foundDevice);
                         foundDevices.add(foundDevice);
                     }
                 }
@@ -194,31 +173,14 @@ public class SearchEngine {
                 for (String contentTypeID : parsedContentTypes) {
                     ContentType matchingContentType = ContentType.valueOf(contentTypeID);
                     if (matchingContentType != null) {
-                        //searchContentTypes.add(matchingContentType);
                         foundContentTypes.add(matchingContentType);
                     }
                 }
                 if (foundContentTypes.size() > 0) {
                     searchCriteria.setContentTypes(foundContentTypes);
                 }
-                //else {
-                //    searchCriteria.setContentTypes(new HashSet(allContentTypes));
-                //}
             }
         }
-        //// no content types specified for querying, so by default add ALL the content types
-        //else {
-        //    searchCriteria.setContentTypes(new HashSet(allContentTypes));
-        //}
-
-        /*
-        // now that we have all the search criteria parsed, cleaned, etc., create our ContentSearch object
-        ContentSearch search = new ContentSearch(searchContentCategories, searchContentString,
-                                                 searchContentMinimumRating, searchContentMaximumPrice,
-                                                 searchContentSupportedLanguages, searchContentCountries,
-                                                 searchContentDevices, searchContentTypes);
-        List<Content> foundContent = productAPI.searchContent(search);
-        */
 
         // show the original query as a ContentSearch
         System.out.println(String.format("CONTENT SEARCH QUERY: %s\n", searchCriteria));
@@ -232,18 +194,6 @@ public class SearchEngine {
 
         int resultsCounter = 1;
         for (Content item : foundContent) {
-            /*
-            // so that each content item uses it's appropriate toString() for printout, cast the content items to their respective types
-            if (item instanceof Application) {
-                item = (Application)item;
-            }
-            else if (item instanceof Ringtone) {
-                item = (Ringtone)item;
-            }
-            else if (item instanceof Wallpaper) {
-                item = (Wallpaper)item;
-            }
-            */
             System.out.println(String.format("MATCHING CONTENT ITEM #%d:\n%s", resultsCounter, item));
             resultsCounter++;
         }
