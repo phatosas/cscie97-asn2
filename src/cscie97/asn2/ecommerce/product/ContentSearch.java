@@ -65,8 +65,16 @@ public class ContentSearch {
      */
     private Set<Device> devices = new HashSet<Device>(){ };
 
+    /**
+     * Unique content types to use when searching for matching content
+     */
     private Set<ContentType> contentTypes = new HashSet<ContentType>(){ };
 
+    /**
+     * Public class constructor with no arguments.  The no-arg constructor is used for building out new ContentSearch
+     * objects that get modified as the {@link cscie97.asn2.ecommerce.product.SearchEngine} loops over a CSV query
+     * import file and constructs new ContentSearch objects for each unique search.
+     */
     public ContentSearch() { }
 
     /**

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Arrays;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * A public API for interacting with the Mobile Application Store which allowed for the importation of new
@@ -167,44 +167,80 @@ public class ProductAPI implements IProductAPI {
      * search object.  If any content item in the product catalog has an attribute that matches any one of the
      * supplied criteria in the search object, that content item will be included in the returned list of items.
      *
+     * The search implicitly uses OR logic for determining if a {@link cscie97.asn2.ecommerce.product.Content} item
+     * should match a given search criteria if that criteria is collection-based.  For example, if the ContentSearch
+     * object passed has a non-null "devices" property and lists multiple devices, then all content items that match
+     * any of those devices will be returned.
+     *
      * @param search a search object containing the criteria to use when searching the Product catalog
      * @return list of all content items that match the supplied criteria in the search object
      */
     public List<Content> searchContent(ContentSearch search) {
-        //return null;  //To change body of implemented methods use File | Settings | File Templates.
-
-        // TEMPORARY: for now, just return everything for every search
         List<Content> foundContent = new ArrayList<Content>();
+
+        // for each attribute in the search object, determine if the content matches any of the values; if so, add the
+        // content item to the foundContent result list and continue onto the next item (no need to continue to match
+        // on other attributes - once a content matches any parameter it's included in the result set regardless of
+        // other attribute matches)
         for (Content item : this.contentItems) {
-            foundContent.add(item);
+            // check for content category matches
+            if ( search.getCategories() != null && CollectionUtils.intersection(item.getCategories(), search.getCategories()).size() > 0 ) {
+                foundContent.add(item);
+                //System.out.println("content matched on categories!");
+                continue;
+            }
+            // check for device matches
+            if ( search.getDevices() != null && CollectionUtils.intersection(item.getCompatibleDevices(), search.getDevices()).size() > 0 ) {
+                foundContent.add(item);
+                //System.out.println("content matched on devices!");
+                continue;
+            }
+            // check for country matches
+            if ( search.getCountries() != null && CollectionUtils.intersection(item.getAllowedInCountries(), search.getCountries()).size() > 0 ) {
+                foundContent.add(item);
+                //System.out.println("content matched on countries!");
+                continue;
+            }
+            // check for language code matches
+            if ( search.getSupportedLanguages() != null && CollectionUtils.intersection(item.getSupportedLanguages(), search.getSupportedLanguages()).size() > 0 ) {
+                foundContent.add(item);
+                //System.out.println("content matched on supported languages!");
+                continue;
+            }
+            // check for content type matches
+            if ( item.getContentType() != null && search.getContentTypes().contains(item.getContentType()) ) {
+                foundContent.add(item);
+                //System.out.println("content matched on content types!");
+                continue;
+            }
+
+            // check for text search string matches
+            boolean searchTextIsSet = (search.getTextSearch() != null && search.getTextSearch().length() > 0);
+            boolean searchTextInItemName = item.getName().toLowerCase().contains(search.getTextSearch().toLowerCase());
+            boolean searchTextInItemDescription = item.getDescription().toLowerCase().contains(search.getTextSearch().toLowerCase());
+            boolean searchTextInItemAuthorName = item.getAuthorName().toLowerCase().contains(search.getTextSearch().toLowerCase());
+
+            if ( searchTextIsSet && (searchTextInItemName || searchTextInItemDescription || searchTextInItemAuthorName) ) {
+                foundContent.add(item);
+                //System.out.println("content matched on string matches!\nsearchTextIsSet: ["+searchTextIsSet+"]\nsearchTextInItemName: ["+searchTextInItemName+"]\nsearchTextInItemDescription: ["+searchTextInItemDescription+"]\nsearchTextInItemAuthorName: ["+searchTextInItemAuthorName+"]\n");
+                continue;
+            }
+            // check for minimum rating matches (must ensure that the item rating is also at least 1, or this would
+            // match all content, since the default value for the rating parameter is zero when uninitialized)
+            if ( item.getRating() >= search.getMinimumRating() && item.getRating() >= 1) {
+                foundContent.add(item);
+                //System.out.println("content matched on minimum rating!");
+                continue;
+            }
+            // check for maximum price matches (in this case, if the search maximum price IS zero, we want
+            // to return all content that is free and has a zero price)
+            if ( search.getMaximumPrice() >= item.getPrice() ) {
+                foundContent.add(item);
+                //System.out.println("content matched on maximum price!");
+                continue;
+            }
         }
         return foundContent;
-
-        // TODO: implement a proper content item search based on the criteria in the passed ContentSearch object
-
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        /*
-
-        LINQ-like lambdas for Java:
-
-        http://code.google.com/p/lambdaj/
-
-        https://github.com/nicholas22/jpropel-light
-
-        */
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
-        //********************************************************************************************************************//
     }
 
     /**

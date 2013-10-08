@@ -200,15 +200,16 @@ public class SearchEngine {
                 }
                 if (foundContentTypes.size() > 0) {
                     searchCriteria.setContentTypes(foundContentTypes);
-                } else {
-                    searchCriteria.setContentTypes(new HashSet(allContentTypes));
                 }
+                //else {
+                //    searchCriteria.setContentTypes(new HashSet(allContentTypes));
+                //}
             }
         }
-        // no content types specified for querying, so by default add ALL the content types
-        else {
-            searchCriteria.setContentTypes(new HashSet(allContentTypes));
-        }
+        //// no content types specified for querying, so by default add ALL the content types
+        //else {
+        //    searchCriteria.setContentTypes(new HashSet(allContentTypes));
+        //}
 
         /*
         // now that we have all the search criteria parsed, cleaned, etc., create our ContentSearch object
