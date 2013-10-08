@@ -1,7 +1,9 @@
 package cscie97.asn2.ecommerce.product;
 
-import java.util.*;
-
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.ArrayList;
 import org.apache.commons.collections4.CollectionUtils;
 
 /**
