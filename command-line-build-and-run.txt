@@ -1,13 +1,20 @@
 
+# REQUIREMENTS specification to build:
+javac cscie97/asn2/ecommerce/product/*.java cscie97/asn2/test/*.java
 
-
-// WORKED to build app
+# MY custom build app:
 javac -cp ".:commons-collections4-4.0-alpha1.jar:commons-lang3-3.1.jar" cscie97/asn2/ecommerce/product/*.java cscie97/asn2/ecommerce/product/exception/*.java cscie97/asn2/test/*.java
 
-// WORKED to run app
+
+
+# REQUIREMENTS specification to run app:
+java ­cp . cscie97.asn2.ecommerce.test.TestDriver countries.csv devices.csv products.csv queries.csv
+
+# MY specification to run app:
 java -cp ".:commons-collections4-4.0-alpha1.jar:commons-lang3-3.1.jar" cscie97.asn2.test.TestDriver countries.csv devices.csv products.csv queries.csv
 
 
 
+see http://isites.harvard.edu/icb/icb.do?keyword=k97402&state=restore&panel=icb.pagecontent1356729%3Armessage%3Fmessage_id%3D924712%26updatemsg%3D%26errmsg%3D&pageid=icb.page626866&pageContentId=icb.pagecontent1356729&#a_icb_pagecontent1356729
 
 
