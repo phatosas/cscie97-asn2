@@ -267,8 +267,9 @@ public class Importer {
 
                 String[] cleanedColumns = Importer.parseCSVLine(line, ",");
 
-                // can be 12 or 13 columns long (13 contains the filesize for applications)
-                if (cleanedColumns != null && cleanedColumns.length >= 12 && cleanedColumns.length <= 13) {
+                // depending on what info was supplied, the cleaned columns can be 12 to 16 columns in size,
+                // depending on content attribute supplied
+                if (cleanedColumns != null && cleanedColumns.length >= 12 && cleanedColumns.length <= 15) {
                     // set up empty values for the content that will be parsed out from the line
                     String contentID = "";
                     String contentName = "";
@@ -291,8 +292,8 @@ public class Importer {
                     String upperCaseContentType = cleanedColumns[0].toUpperCase();
 
                     // get the content type
-                    if (cleanedColumns[0] != null && allContentTypes.contains(ContentType.valueOf(upperCaseContentType)) ) {
-                        contentType = ContentType.valueOf(cleanedColumns[0].toUpperCase());
+                    if (cleanedColumns[0] != null && cleanedColumns[0].length() > 0 && allContentTypes.contains(ContentType.valueOf(upperCaseContentType)) ) {
+                        contentType = ContentType.valueOf(cleanedColumns[0].trim().toUpperCase());
                     }
                     // get the content ID
                     if (cleanedColumns[1] != null && cleanedColumns[1].length() > 0) {
@@ -313,7 +314,7 @@ public class Importer {
                     // get the content rating
                     if (cleanedColumns[5] != null && cleanedColumns[5].length() == 1) {
                         try {
-                            contentRating = Integer.parseInt(cleanedColumns[5]);
+                            contentRating = Integer.parseInt(cleanedColumns[5].trim());
                         }
                         catch (NumberFormatException nfe) {
                             throw new ParseException("Import Content line contains invalid data for the content rating ["+cleanedColumns[5].toString()+"].",
@@ -327,6 +328,8 @@ public class Importer {
                     if (cleanedColumns[6] != null && cleanedColumns[6].length() > 0) {
                         // need to parse out the categories by splitting on the pipe character
                         String[] parsedCategories = Importer.parseCSVLine(cleanedColumns[6], "\\|");
+                        // remove any leading or trailing whitespace from category names
+                        for (int i=0; i<parsedCategories.length; i++) { parsedCategories[i] = parsedCategories[i].trim(); }
                         if (parsedCategories != null && parsedCategories.length > 0) {
                             contentCategories.addAll(Arrays.asList(parsedCategories));
                         }
@@ -337,7 +340,7 @@ public class Importer {
                         String[] parsedCountries = Importer.parseCSVLine(cleanedColumns[7], "\\|");
                         if (parsedCountries != null && parsedCountries.length > 0) {
                             for (String countryCode : parsedCountries) {
-                                Country foundCountry = productAPI.getCountryByCode(countryCode);
+                                Country foundCountry = productAPI.getCountryByCode(countryCode.trim());
                                 if (foundCountry != null) {
                                     contentCountries.add(foundCountry);
                                 }
@@ -350,7 +353,7 @@ public class Importer {
                         String[] parsedDevices = Importer.parseCSVLine(cleanedColumns[8], "\\|");
                         if (parsedDevices != null && parsedDevices.length > 0) {
                             for (String deviceID : parsedDevices) {
-                                Device foundDevice = productAPI.getDeviceByID(deviceID);
+                                Device foundDevice = productAPI.getDeviceByID(deviceID.trim());
                                 if (foundDevice != null) {
                                     contentDevices.add(foundDevice);
                                 }
@@ -360,7 +363,7 @@ public class Importer {
                     // get the content price (in BitCoins)
                     if (cleanedColumns[9] != null && cleanedColumns[9].length() > 0) {
                         try {
-                            contentPrice = Float.parseFloat(cleanedColumns[9]);
+                            contentPrice = Float.parseFloat(cleanedColumns[9].trim());
                         }
                         catch (NumberFormatException nfe) {
                             throw new ParseException("Import Content line contains invalid data for the content price ["+cleanedColumns[9].toString()+"].",
@@ -374,6 +377,8 @@ public class Importer {
                     if (cleanedColumns[10] != null && cleanedColumns[10].length() > 0) {
                         // need to parse out the supported languages by splitting on the pipe character
                         String[] parsedLanguages = Importer.parseCSVLine(cleanedColumns[10], "\\|");
+                        // remove any leading or trailing whitespace from supported language names
+                        for (int i=0; i<parsedLanguages.length; i++) { parsedLanguages[i] = parsedLanguages[i].trim(); }
                         if (parsedLanguages != null && parsedLanguages.length > 0) {
                             contentSupportedLanguages.addAll(Arrays.asList(parsedLanguages));
                         }
@@ -383,9 +388,9 @@ public class Importer {
                         contentImageURL = cleanedColumns[11].trim();
                     }
                     // OPTIONAL: if there is a 13th item in the array, it is the application file size
-                    if (cleanedColumns.length >= 13 && cleanedColumns[12] != null && cleanedColumns[12].length() > 0) {
+                    if (cleanedColumns.length >= 13 && cleanedColumns[12] != null && cleanedColumns[12].trim().length() > 0) {
                         try {
-                            contentFilesizeBytes = Integer.parseInt(cleanedColumns[12]);
+                            contentFilesizeBytes = Integer.parseInt(cleanedColumns[12].trim());
                         }
                         catch (NumberFormatException nfe) {
                             throw new ParseException("Import Content line contains invalid data for the content application filesize ["+cleanedColumns[12].toString()+"].",
@@ -396,9 +401,9 @@ public class Importer {
                         }
                     }
                     // OPTIONAL: if there is a 14th item in the array, it is the ringtone duration in seconds
-                    if (cleanedColumns.length >= 14 && cleanedColumns[13] != null && cleanedColumns[13].length() > 0) {
+                    if (cleanedColumns.length >= 14 && cleanedColumns[13] != null && cleanedColumns[13].trim().length() > 0) {
                         try {
-                            contentDurationInSeconds = Float.parseFloat(cleanedColumns[13]);
+                            contentDurationInSeconds = Float.parseFloat(cleanedColumns[13].trim());
                         }
                         catch (NumberFormatException nfe) {
                             throw new ParseException("Import Content line contains invalid data for the content ringtone duration in seconds ["+cleanedColumns[13].toString()+"].",
@@ -412,12 +417,12 @@ public class Importer {
                     if (cleanedColumns.length >= 16 &&
                             cleanedColumns[14] != null &&
                             cleanedColumns[15] != null &&
-                            cleanedColumns[14].length() > 0 &&
-                            cleanedColumns[15].length() > 0
+                            cleanedColumns[14].trim().length() > 0 &&
+                            cleanedColumns[15].trim().length() > 0
                     ) {
                         try {
-                            contentPixelWidth = Integer.parseInt(cleanedColumns[14]);
-                            contentPixelHeight = Integer.parseInt(cleanedColumns[15]);
+                            contentPixelWidth = Integer.parseInt(cleanedColumns[14].trim());
+                            contentPixelHeight = Integer.parseInt(cleanedColumns[15].trim());
                         }
                         catch (NumberFormatException nfe) {
                             throw new ParseException("Import Content line contains invalid data for the content wallpaper pixel width and height ["+cleanedColumns[14].toString()+","+cleanedColumns[15].toString()+"].",

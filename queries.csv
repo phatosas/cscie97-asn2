@@ -8,3 +8,9 @@
 
 # search for all content that can be used on iphone_6 or fake_phone_not_real
 , , , , , , iphone_6|fake_phone_not_real, ,
+
+# search for all content items that have anything to do with poker
+, poker, , , , , , ,
+
+# search for all content items that have caregory "game"
+game, , , , , , , ,

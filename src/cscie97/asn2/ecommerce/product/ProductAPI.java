@@ -1,9 +1,7 @@
 package cscie97.asn2.ecommerce.product;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 import org.apache.commons.collections4.CollectionUtils;
 
 /**
@@ -184,33 +182,41 @@ public class ProductAPI implements IProductAPI {
         // other attribute matches)
         for (Content item : this.contentItems) {
             // check for content category matches
+
+            /*
+            String itemCategories = item.getCategories().toString();
+            String searchCategories = search.getCategories().toString();
+            Collection categoryIntersection = CollectionUtils.intersection(item.getCategories(), search.getCategories());
+            System.out.println("itemCategories: ["+itemCategories+"]\nsearchCategories: ["+searchCategories+"]\ncategoryIntersection: ["+categoryIntersection.toString()+"]\nCollectionUtils.intersection(item.getCategories(), search.getCategories()).size(): ["+CollectionUtils.intersection(item.getCategories(), search.getCategories()).size()+"]\nCollectionUtils.isSubCollection(search.getCategories(), item.getCategories()): ["+CollectionUtils.isSubCollection(search.getCategories(), item.getCategories())+"]\n");
+            */
+
             if ( search.getCategories() != null && CollectionUtils.intersection(item.getCategories(), search.getCategories()).size() > 0 ) {
                 foundContent.add(item);
-                System.out.println("content matched on categories!");
+                //System.out.println("content matched on categories!");
                 continue;
             }
             // check for device matches
             if ( search.getDevices() != null && CollectionUtils.intersection(item.getCompatibleDevices(), search.getDevices()).size() > 0 ) {
                 foundContent.add(item);
-                System.out.println("content matched on devices!");
+                //System.out.println("content matched on devices!");
                 continue;
             }
             // check for country matches
             if ( search.getCountries() != null && CollectionUtils.intersection(item.getAllowedInCountries(), search.getCountries()).size() > 0 ) {
                 foundContent.add(item);
-                System.out.println("content matched on countries!");
+                //System.out.println("content matched on countries!");
                 continue;
             }
             // check for language code matches
             if ( search.getSupportedLanguages() != null && CollectionUtils.intersection(item.getSupportedLanguages(), search.getSupportedLanguages()).size() > 0 ) {
                 foundContent.add(item);
-                System.out.println("content matched on supported languages!");
+                //System.out.println("content matched on supported languages!");
                 continue;
             }
             // check for content type matches
             if ( item.getContentType() != null && search.getContentTypes().contains(item.getContentType()) ) {
                 foundContent.add(item);
-                System.out.println("content matched on content types!");
+                //System.out.println("content matched on content types!");
                 continue;
             }
 
@@ -222,21 +228,21 @@ public class ProductAPI implements IProductAPI {
 
             if ( searchTextIsSet && (searchTextInItemName || searchTextInItemDescription || searchTextInItemAuthorName) ) {
                 foundContent.add(item);
-                System.out.println("content matched on string matches!\nsearchTextIsSet: ["+searchTextIsSet+"]\nsearchTextInItemName: ["+searchTextInItemName+"]\nsearchTextInItemDescription: ["+searchTextInItemDescription+"]\nsearchTextInItemAuthorName: ["+searchTextInItemAuthorName+"]\n");
+                //System.out.println("content matched on string matches!\nsearchTextIsSet: ["+searchTextIsSet+"]\nsearchTextInItemName: ["+searchTextInItemName+"]\nsearchTextInItemDescription: ["+searchTextInItemDescription+"]\nsearchTextInItemAuthorName: ["+searchTextInItemAuthorName+"]\n");
                 continue;
             }
             // check for minimum rating matches (must ensure that the item rating is also at least 1, or this would
             // match all content, since the default value for the rating parameter is zero when uninitialized)
             if ( item.getRating() >= search.getMinimumRating() && item.getRating() >= 1) {
                 foundContent.add(item);
-                System.out.println("content matched on minimum rating!   item rating: ["+item.getRating()+"]  search minimum rating: ["+search.getMinimumRating()+"]");
+                //System.out.println("content matched on minimum rating!   item rating: ["+item.getRating()+"]  search minimum rating: ["+search.getMinimumRating()+"]");
                 continue;
             }
             // check for maximum price matches (in this case, if the search maximum price IS zero, we want
             // to return all content that is free and has a zero price)
             if ( search.getMaximumPrice() >= item.getPrice() ) {
                 foundContent.add(item);
-                System.out.println("content matched on maximum price!");
+                //System.out.println("content matched on maximum price!");
                 continue;
             }
         }
