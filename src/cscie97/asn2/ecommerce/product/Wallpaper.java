@@ -98,6 +98,18 @@ public class Wallpaper extends Content {
     }
 
     /**
+     * Public static method that checks that all required fields are set, and that all content item values are
+     * valid (e.g., ratings are 0 to 5, where 5 is best, item price should only allow positive numbers, etc.).
+     * For Wallpaper objects, valid non-zero pixelWidth and pixelHeight attributes are required.
+     *
+     * @param content  the item to be validated for correct properties
+     * @return  true if all properties are valid, false otherwise
+     */
+    public static boolean validateContent(Wallpaper content) {
+        return (Content.validateContent(content) && (content.pixelHeight > 0 && content.pixelWidth > 0));
+    }
+
+    /**
      * Returns a string representation of a Wallpaper item.  Useful for debugging.
      *
      * @return  a string representing the Wallpaper

@@ -350,7 +350,7 @@ public abstract class Content {
 
 
     /**
-     * Public static methof that checks that all required fields are set, and that all content item values are
+     * Public static method that checks that all required fields are set, and that all content item values are
      * valid (e.g., ratings are 0 to 5, where 5 is best, item price should only allow positive numbers, etc.).
      *
      * @param content  the item to be validated for correct properties

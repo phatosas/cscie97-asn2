@@ -73,6 +73,18 @@ public class Application extends Content {
     }
 
     /**
+     * Public static method that checks that all required fields are set, and that all content item values are
+     * valid (e.g., ratings are 0 to 5, where 5 is best, item price should only allow positive numbers, etc.).
+     * For Application objects, a valid filesize in bytes is required.
+     *
+     * @param content  the item to be validated for correct properties
+     * @return  true if all properties are valid, false otherwise
+     */
+    public static boolean validateContent(Application content) {
+        return (Content.validateContent(content) && (content.fileSizeBytes > 0));
+    }
+
+    /**
      * Returns a string representation of an Application item.  Useful for debugging.
      *
      * @return  a string representing the Application

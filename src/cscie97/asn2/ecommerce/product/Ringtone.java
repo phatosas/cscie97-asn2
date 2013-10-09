@@ -73,6 +73,18 @@ public class Ringtone extends Content {
     }
 
     /**
+     * Public static method that checks that all required fields are set, and that all content item values are
+     * valid (e.g., ratings are 0 to 5, where 5 is best, item price should only allow positive numbers, etc.).
+     * For Ringtone objects, a valid non-zero duration in seconds is required.
+     *
+     * @param content  the item to be validated for correct properties
+     * @return  true if all properties are valid, false otherwise
+     */
+    public static boolean validateContent(Ringtone content) {
+        return (Content.validateContent(content) && content.durationInSeconds > 0);
+    }
+
+    /**
      * Returns a string representation of a Ringtone item.  Useful for debugging.
      *
      * @return  a string representing the Ringtone
