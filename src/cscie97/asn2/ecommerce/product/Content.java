@@ -434,7 +434,7 @@ public abstract class Content {
                 .isEquals();
     }
 
-    /**
+        /**
      * Since {@link cscie97.asn2.ecommerce.product.Content} objects may be added to collections, and also since
      * the {@link cscie97.asn2.ecommerce.product.IProductAPI} enforces that all content items be unique, this method
      * provides a way to get the unique hash code for the current content item.  Uses the Apache Commons
