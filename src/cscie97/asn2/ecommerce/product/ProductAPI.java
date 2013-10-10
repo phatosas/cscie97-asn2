@@ -150,12 +150,15 @@ public class ProductAPI implements IProductAPI {
         if (validateAccessToken(guid)) {
             for (Content contentItem : contentItems) {
                 if (contentItem instanceof Application && Application.validateContent(contentItem)) {
+                //if (contentItem instanceof Application && Application.validateContent((Application)contentItem)) {
                     this.contentItems.add(contentItem);
                 }
                 else if (contentItem instanceof Wallpaper && Wallpaper.validateContent(contentItem)) {
+                //else if (contentItem instanceof Wallpaper && Wallpaper.validateContent((Wallpaper)contentItem)) {
                     this.contentItems.add(contentItem);
                 }
                 else if (contentItem instanceof Ringtone && Ringtone.validateContent(contentItem)) {
+                //else if (contentItem instanceof Ringtone && Ringtone.validateContent((Ringtone)contentItem)) {
                     this.contentItems.add(contentItem);
                 }
             }

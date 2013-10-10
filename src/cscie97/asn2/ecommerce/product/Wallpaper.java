@@ -37,7 +37,7 @@ public class Wallpaper extends Content {
      *
      * @return  the width of the wallpaper in pixels
      */
-    public float getPixelWidth() {
+    public int getPixelWidth() {
         return pixelWidth;
     }
 
@@ -55,7 +55,7 @@ public class Wallpaper extends Content {
      *
      * @return  the height of the wallpaper in pixels
      */
-    public float getPixelHeight() {
+    public int getPixelHeight() {
         return pixelHeight;
     }
 

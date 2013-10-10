@@ -269,7 +269,7 @@ public class Importer {
 
                 // depending on what info was supplied, the cleaned columns can be 12 to 16 columns in size,
                 // depending on content attribute supplied
-                if (cleanedColumns != null && cleanedColumns.length >= 12 && cleanedColumns.length <= 15) {
+                if (cleanedColumns != null && cleanedColumns.length >= 12 && cleanedColumns.length <= 16) {
                     // set up empty values for the content that will be parsed out from the line
                     String contentID = "";
                     String contentName = "";
@@ -445,26 +445,52 @@ public class Importer {
                     // call the appropriate content type class constructor based on the parsed values from the CSV line
                     switch (contentType) {
                         case APPLICATION :
-                            Content application = new Application(contentID, contentName, contentDescription,
+                            Application application = new Application(contentID, contentName, contentDescription,
                                                                   contentAuthorName, contentRating, contentCategories,
                                                                   contentDevices, contentPrice, contentCountries,
                                                                   contentSupportedLanguages, contentImageURL,
                                                                   contentType, contentFilesizeBytes);
-                            contentItemsToAdd.add(application);
+                            if (Application.validateContent(application)) {
+                                contentItemsToAdd.add(application);
+                            } else {
+                                throw new ParseException("Import Content line contains invalid data for some of the application content attributes.",
+                                                            line,
+                                                            lineNumber,
+                                                            filename,
+                                                            null);
+                            }
                             break;
                         case RINGTONE :
-                            Content ringtone = new Ringtone(contentID, contentName, contentDescription, contentAuthorName,
+                            Ringtone ringtone = new Ringtone(contentID, contentName, contentDescription, contentAuthorName,
                                                             contentRating, contentCategories, contentDevices,
                                                             contentPrice, contentCountries, contentSupportedLanguages,
                                                             contentImageURL, contentType, contentDurationInSeconds);
-                            contentItemsToAdd.add(ringtone);
+                            if (Ringtone.validateContent(ringtone)) {
+                                contentItemsToAdd.add(ringtone);
+                            } else {
+                                throw new ParseException("Import Content line contains invalid data for some of the ringtone content attributes.",
+                                                            line,
+                                                            lineNumber,
+                                                            filename,
+                                                            null);
+                            }
+                            //contentItemsToAdd.add(ringtone);
                             break;
                         case WALLPAPER :
-                            Content wallpaper = new Wallpaper(contentID, contentName, contentDescription, contentAuthorName,
+                            Wallpaper wallpaper = new Wallpaper(contentID, contentName, contentDescription, contentAuthorName,
                                                               contentRating, contentCategories, contentDevices,
                                                               contentPrice, contentCountries, contentSupportedLanguages,
                                                               contentImageURL, contentType, contentPixelWidth, contentPixelHeight);
-                            contentItemsToAdd.add(wallpaper);
+                            if (Wallpaper.validateContent(wallpaper)) {
+                                contentItemsToAdd.add(wallpaper);
+                            } else {
+                                throw new ParseException("Import Content line contains invalid data for some of the wallpaper content attributes.",
+                                                            line,
+                                                            lineNumber,
+                                                            filename,
+                                                            null);
+                            }
+                            //contentItemsToAdd.add(wallpaper);
                             break;
                     }
                 } else {

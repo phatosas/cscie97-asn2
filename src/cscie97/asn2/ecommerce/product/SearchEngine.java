@@ -170,7 +170,7 @@ public class SearchEngine {
             if (parsedContentTypes != null && parsedContentTypes.length > 0) {
                 HashSet<ContentType> foundContentTypes = new HashSet<ContentType>();
                 for (String contentTypeID : parsedContentTypes) {
-                    ContentType matchingContentType = ContentType.valueOf(contentTypeID);
+                    ContentType matchingContentType = ContentType.valueOf(contentTypeID.toUpperCase());
                     if (matchingContentType != null) {
                         foundContentTypes.add(matchingContentType);
                     }
